@@ -1,0 +1,14 @@
+<div class="nav__anchor">
+    <h2 class="menu__group-title">
+      {{ menu_group }}
+    </h2>
+    <div class="menu__group">
+
+      {% for dish in dishes_list %}
+
+      {% include 'components/dish-item.html' %}
+
+      {% endfor %}
+
+    </div>
+</div>

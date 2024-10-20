@@ -1,0 +1,71 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Hunter</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+  <link rel="stylesheet" href="{% static 'css/reset.css' %}"/>
+  <link rel="stylesheet" href="{% static 'css/hunter.css' %}"/>
+</head>
+<body> 
+  <header class="header">
+    <a href="{% url 'hunterIndex' %}" class="logo">
+      HUNTER
+    </a>
+
+    <nav class="navbar">
+      <a class="current__page" href="{% url 'hunterIndex' %}">Главная</a>
+      <a href="{% url 'hunterMenu' %}">Меню</a>
+      <a href="{% url 'hunterReservation' %}">Забронировать</a>
+      <a href="{% url 'hunterReviews' %}">Отзывы</a>
+    </nav>
+
+    <div class="icons">
+      <img src="{% static 'img/avatar.jpg' %}" class="fas fa-user profile" id="prof-btn" onclick="toggleMenu()"></img>
+      <a class="fas fa-shopping-cart cart" href="#" id="cart-btn"></a>
+    </div>
+
+    <div class="sub-menu-wrap" id="subMenu">
+      <div class="sub-menu">
+        <div class="user-info">
+          <img src="{% static 'img/avatar.jpg' %}" alt="">
+          <h3>Nikita Romanov</h3>
+        </div>
+        <hr>
+  
+        <a href="{% url 'profile' %}" class="sub-menu-link">
+          <img src="{% static 'img/setting.png' %}" alt="">
+          <p>Edit Profile</p>
+          <span>></span>
+        </a>
+        <a href="{% url 'hunterAdminOrders' %}" class="sub-menu-link">
+          <img src="{% static 'img/help.png' %}" alt="">
+          <p>Для сотрудников</p>
+          <span>></span>
+        </a>
+        <a href="" class="sub-menu-link">
+          <img src="{% static 'img/logout.png' %}" alt="">
+          <p>Log Out</p>
+          <span>></span>
+        </a>
+  
+      </div>
+    </div>
+
+  </header>
+
+  {% block content %}
+   
+  {% endblock %}
+  
+  <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+  <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+  <script src="{% static 'js/hunter.js' %}"></script>
+</body>
+</html>
+

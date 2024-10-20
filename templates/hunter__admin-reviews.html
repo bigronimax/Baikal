@@ -1,0 +1,18 @@
+{% extends 'layouts/hunter__admin-base.html' %}
+
+{% block content %}
+<div class="fragment">
+  <div class="reviews">
+    <div class="reviews__body-admin">
+      {% for review in reviews %}
+
+      {% include 'components/review-admin-item.html' %}
+  
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+
+

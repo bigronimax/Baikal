@@ -1,0 +1,13 @@
+{% extends 'layouts/hunter__admin-base.html' %} 
+
+{% block content %}
+<div class="fragment">
+  <div class="menu">
+    {% for menu_group, dishes_list in dishes.items %}
+
+    {% include 'components/menu-group-admin-item.html' %}
+
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

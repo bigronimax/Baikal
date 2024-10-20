@@ -1,0 +1,62 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Hunter</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+  <link rel="stylesheet" href="{% static '/css/reset.css' %}"/>
+  <link rel="stylesheet" href="{% static '/css/access.css' %}"/>
+</head>
+<body> 
+
+  <section class="profile">
+    <h2 class="profile__title">
+      Настройки профиля: <span>Nikita Romanov.</span> <span>Баллы: 1000</span>
+    </h2>
+    <form class="profile__form" method="post" enctype="multipart/form-data" novalidate>
+      <div class="profile__input">
+        <label class="profile__input-title" for="">Username</label>
+        <input type="text">
+      </div>
+
+      <div class="profile__input">
+        <label class="profile__input-title" for="">Email</label>
+        <input type="email">
+      </div>
+
+      <div class="profile__input">
+        <label class="profile__input-title" for="">Дата рождения</label>
+        <div class="icon-wrapper">
+          <ion-icon name="calendar-clear-outline" aria-hidden="true"></ion-icon>
+  
+          <input type="date" name="reservation-date" class="input-field">
+  
+          <ion-icon name="chevron-down" aria-hidden="true"></ion-icon>
+        </div>
+      </div>
+      
+      <div class="profile__input">
+        <label class="profile__input-title" for="">Avatar</label>
+        <label class="profile__img"> 
+          <input type="file" name="file">    
+          <span class="profile__img-btn">Выберите файл</span>
+        </label>
+      </div>
+      
+      <img class="profile__avatar" src="{% static 'img/avatar.png' %}" alt="avatar">
+
+      <button class="profile__btn">Сохранить</button>
+    </form>
+  </section>
+
+  <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+  <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+  <script src="{% static 'js/profile.js' %}"></script>
+</body>
+</html>
+

@@ -1,0 +1,79 @@
+{% extends 'layouts/hunter__base.html' %}
+
+{% block content %}
+<section class="reservation">
+  <div class="reservation-form">
+
+    <form action="" class="form">
+
+      <h2 class="form-title">Онлайн бронирование</h2>
+
+      <p class="form-text">
+        Позвоните по номеру <a href="tel:+79247777777" class="form-link">+79247777777</a>
+        или заполните форму ниже
+      </p>
+
+      <div class="input-wrapper">
+        <input type="text" name="name" placeholder="Ваше имя" autocomplete="off" class="input-field">
+
+        <input type="tel" name="phone" placeholder="Номер тел." autocomplete="off" class="input-field">
+      </div>
+
+      <div class="input-wrapper">
+
+        <div class="icon-wrapper">
+          <ion-icon name="person-outline" aria-hidden="true"></ion-icon>
+
+          <select name="person" class="input-field">
+            <option value="1-person">1 гость</option>
+            <option value="2-person">2 гостя</option>
+            <option value="3-person">3 гостя</option>
+            <option value="4-person">4 гостя</option>
+            <option value="5-person">5 гостей</option>
+            <option value="6-person">6 гостей</option>
+            <option value="7-person">7 гостей</option>
+          </select>
+          <ion-icon name="chevron-down" aria-hidden="true"></ion-icon>
+        </div>
+
+        <div class="icon-wrapper">
+          <ion-icon name="calendar-clear-outline" aria-hidden="true"></ion-icon>
+
+          <input type="date" name="reservation-date" class="input-field">
+
+          <ion-icon name="chevron-down" aria-hidden="true"></ion-icon>
+        </div>
+
+        <div class="icon-wrapper">
+          <ion-icon name="time-outline" aria-hidden="true"></ion-icon>
+
+          <select name="person" class="input-field">
+            <option value="10:00">10 : 00</option>
+            <option value="11:00">11 : 00</option>
+            <option value="12:00">12 : 00</option>
+            <option value="13:00">13 : 00</option>
+            <option value="14:00">14 : 00</option>
+            <option value="15:00">15 : 00</option>
+            <option value="16:00">16 : 00</option>
+            <option value="17:00">17 : 00</option>
+            <option value="18:00">18 : 00</option>
+            <option value="19:00">19 : 00</option>
+            <option value="20:00">20 : 00</option>
+            <option value="21:00">21 : 00</option>
+            <option value="22:00">22 : 00</option>
+          </select>
+          <ion-icon name="chevron-down" aria-hidden="true"></ion-icon>
+        </div>
+
+      </div>
+
+      <textarea name="message" placeholder="Комментарий" autocomplete="off" class="input-field"></textarea>
+
+      <button type="submit" class="btn">
+        Забронировать стол
+      </button>
+
+    </form>
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,11 @@
+{% load static %}
+
+<div class="worker">
+    <a href="#" class="worker__card">
+      <img src="/static/{{ worker.img }}" alt="worker" class="worker__img">
+      <div class="worker__info">
+        <p class="worker__name">{{ worker.name }}</p>
+        <p class="worker__salary">{{ worker.salary }}/мес.</p>
+      </div>
+    </a>
+</div>

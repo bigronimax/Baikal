@@ -1,0 +1,28 @@
+{% load static %}
+
+<div class="dish">
+    <div class="dish__photo">
+      <img src="{% static 'img/test.webp' %}" alt="">
+    </div>
+    <div class="dish__content">
+      <a href="" class="dish__name">
+        {{ dish.name }}
+      </a>
+      <div class="dish__text">
+        {{ dish.content }}
+      </div>
+      <div class="dish__footer">
+        <div class="dish__value">
+          <div class="dish__price">
+            {{ dish.price }}
+          </div>
+          <div class="dish__size">
+            {{ dish.weight }}
+          </div>
+        </div>
+        <div class="dish__plus">
+        
+        </div>
+      </div>
+    </div>
+</div>

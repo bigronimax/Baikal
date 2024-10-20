@@ -1,0 +1,14 @@
+{% extends 'layouts/hunter__base.html' %}
+
+{% block content %}
+<section class="menu">
+
+  {% for menu_group, dishes_list in dishes.items %}
+
+  {% include 'components/menu-group-item.html' %}
+
+  {% endfor %}
+
+</section>
+{% endblock %}
+

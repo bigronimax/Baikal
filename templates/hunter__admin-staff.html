@@ -1,0 +1,15 @@
+{% extends 'layouts/hunter__admin-base.html' %}
+
+{% block content %}
+<div class="fragment">
+  <div class="staff">
+    
+    {% for staff_group, workers_list in workers.items %}
+
+    {% include 'components/staff-group-admin-item.html' %}
+
+    {% endfor %}
+    
+  </div>
+</div>
+{% endblock %}

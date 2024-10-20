@@ -1,0 +1,54 @@
+{% extends 'layouts/hunter__admin-base.html' %}
+
+{% block content %}
+<div class="fragment">
+  <div class="reservations">
+    <table>
+        <thead>
+          <tr>
+            <th>ФИО</th>
+            <th>Время</th>
+            <th>Дата</th>
+            <th>Гости</th>
+            <th>Телефон</th>
+            <th>Комментарий</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Романов Никита Максимович</td>
+            <td>12:00</td>
+            <td>20.10.2024</td>
+            <td>5</td>
+            <td>+79240000000</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>Романов Никита Максимович</td>
+            <td>12:00</td>
+            <td>20.10.2024</td>
+            <td>5</td>
+            <td>+79240000000</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>Романов Никита Максимович</td>
+            <td>12:00</td>
+            <td>20.10.2024</td>
+            <td>5</td>
+            <td>+79240000000</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td colspan="6" class="text-right text-bold">Всего: 15 гостей</td>
+          </tr>
+        </tbody>
+    </table>
+    <div class="table__edit">
+        <button class="btn-2">Добавить</button>
+        <button class="btn-2">Редактировать</button>
+        <button class="btn-2">Сохранить</button>
+    </div>
+  </div>
+</div>
+{% endblock %}

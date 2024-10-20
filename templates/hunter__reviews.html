@@ -1,0 +1,16 @@
+{% extends 'layouts/hunter__base.html' %}
+
+{% block content %}
+<section class="reviews">
+  <div class="reviews__body">
+    {% for review in reviews %}
+
+    {% include 'components/review-item.html' %}
+
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}
+
+
+

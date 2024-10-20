@@ -1,0 +1,118 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Baikal</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+  <link rel="stylesheet" href="{% static '/css/reset.css' %}"/>
+  <link rel="stylesheet" href="{% static '/css/slick.css' %}">
+  <link rel="stylesheet" href="{% static '/css/main.css' %}"/>
+</head>
+<body> 
+    
+  <header class="header">
+    <a href="main.html" class="logo">
+      BAIKAL
+    </a>
+
+    <nav class="navbar">
+      <a class="current_page" href="main.html">Главная</a>
+      <a href="#">Новости</a>
+      <a href="#book_table">О нас</a>
+      <a href="#reviews">Отзывы</a>
+    </nav>
+
+    <div class="icons">
+      <img src="{% static '/img/avatar.jpg' %}" class="fas fa-user profile" id="prof-btn" onclick="toggleMenu()"></img>
+    </div>
+
+    <div class="sub-menu-wrap" id="subMenu">
+      <div class="sub-menu">
+        <div class="user-info">
+          <img src="{% static '/img/avatar.jpg' %}" alt="">
+          <h3>Nikita Romanov</h3>
+        </div>
+        <hr>
+
+        <a href="access.html" class="sub-menu-link">
+          <img src="{% static '/img/setting.png' %}" alt="">
+          <p>Edit Profile</p>
+          <span>></span>
+        </a>
+        <a href="" class="sub-menu-link">
+          <img src="{% static '/img/help.png' %}" alt="">
+          <p>Help</p>
+          <span>></span>
+        </a>
+        <a href="" class="sub-menu-link">
+          <img src="{% static '/img/logout.png' %}" alt="">
+          <p>Log Out</p>
+          <span>></span>
+        </a>
+
+      </div>
+    </div>
+  </header>
+
+  <section class="home">
+    <div class="slider">
+
+      <div class="slider-item">
+        <div class="slider-img">
+          <img src="{% static '/img/slider-1.jpg' %}" alt="">
+        </div>
+        <div class="slider-text">
+          <h2>Ассоциация BAIKAL - сеть ресторанов сибирской кухни</h2>
+          <p>Каждое заведение уже давно полюбилось жителям и гостям города за разнообразие вкусов и сибирское гостеприимство</p>
+          <a href="{% url 'main' %}">О нас</a>
+        </div>
+      </div>
+
+      <div class="slider-item">
+        <div class="slider-img">
+          <img src="{% static '/img/slider-2.jpg' %}" alt="">
+        </div>
+        <div class="slider-text">
+          <h2>HUNTER</h2>
+          <p>В Сибирском отеле разместился аутентичный ресторан настоящего охотника. Здесь вы не останетесь без эмоций и наслаждения.</p>
+          <a href="{% url 'hunterIndex' %}">Перейти на сайт</a>
+        </div>
+      </div>
+
+      <div class="slider-item">
+        <div class="slider-img">
+          <img src="{% static '/img/slider-3.jpg' %}" alt="">
+        </div>
+        <div class="slider-text">
+          <h2>BUTIN</h2>
+          <p>Здесь каждый может отдохнуть “без галстука”, побыть собой, хорошо и вкусно провести время</p>
+          <a href="#">Перейти на сайт</a>
+        </div>
+      </div>
+
+    </div>
+  </section>
+    
+  
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="{% static '/js/slick.min.js' %}"></script>
+    <script>
+          $(function(){
+        $('.slider').slick({
+            arrows: true,
+            fade: true,
+            dots: true,
+            infinite: true,
+          prevArrow: '<button type="button" class="slick-btn slick-prev"><img src="{% static "/img/arrow-prev.svg" %}" alt="image"></button>',
+          nextArrow: '<button type="button" class="slick-btn slick-next"><img src="{% static "/img/arrow-next.svg" %}" alt="image"></button>',
+        });
+    });
+    </script>
+    <script src="{% static '/js/main.js' %}"></script>
+    
+</body>
+</html>
