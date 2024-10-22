@@ -1,10 +1,10 @@
 <div class="nav__anchor">
     <h2 class="staff__group-title">
-      {{ staff_group }}
+      {{ profession.name }}
     </h2>
     <div class="staff__group">
 
-      {% for worker in workers_list %}
+      {% for worker in profession.workers.all %}
 
       {% include 'components/worker-admin-item.html' %}
 

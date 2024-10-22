@@ -3,11 +3,13 @@
 {% block content %}
 <div class="fragment">
   <div class="menu">
-    {% for menu_group, dishes_list in dishes.items %}
+
+    {% for section in restaurant.menu.sections.all %}
 
     {% include 'components/menu-group-admin-item.html' %}
 
     {% endfor %}
+    
   </div>
 </div>
 {% endblock %}

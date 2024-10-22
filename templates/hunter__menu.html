@@ -3,7 +3,7 @@
 {% block content %}
 <section class="menu">
 
-  {% for menu_group, dishes_list in dishes.items %}
+  {% for section in restaurant.menu.sections.all %}
 
   {% include 'components/menu-group-item.html' %}
 

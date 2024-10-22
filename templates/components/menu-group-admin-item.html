@@ -1,10 +1,10 @@
 <div class="nav__anchor">
     <h2 class="menu__group-title">
-      {{ menu_group }}
+      {{ section.name }}
     </h2>
     <div class="menu__group">
 
-      {% for dish in dishes_list %}
+      {% for dish in section.dishes.all %}
 
       {% include 'components/dish-admin-item.html' %}
 

@@ -1,22 +1,22 @@
 <div class="order">
     <div class="order__left">
-      <div class="order__num">Заказ №<span>{{ order.id }}</span></div>
+      <div class="order__num">Заказ<span>№{{ order.id }}</span></div>
       <div class="order__guests">Гостей: <span>{{ order.guests }}</span></div>
     </div>
     <div class="order__right">
       <div class="order__right__body">
         <ui class="order__right__list">
 
-          {% for dish in order.dishes %}
+          {% for dish in order.dishes.all %}
 
-          <li>dish.name</li>
+          <li>{{ dish.name }}</li>
       
           {% endfor %}
     
         </ui>
       </div>
       <div class="order__right__bottom">
-        <span class="order__right__date">Дата: {{ order.id }}</span>
+        <span class="order__right__date">Дата: {{ order.date }}</span>
         <span class="order__right__time">Время: {{ order.time }}</span>
       </div>
     </div>
