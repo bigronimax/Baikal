@@ -155,6 +155,7 @@ a, a:active, a:focus {
     height: 50px;
     border-radius: 50%;
     cursor: pointer;
+    background: #fff;
 }
 
 .header .icons a{
@@ -184,6 +185,7 @@ a, a:active, a:focus {
 }
 
 .sub-menu {
+    min-width: 250px;
     border-radius: 20px;
     background: #fff;
     padding: 20px;
@@ -429,6 +431,18 @@ section.menu {
 
 /****************************************/
 
+.alert {
+    font-size: 12px;
+    color: red;
+    position: absolute;
+    transform: translateY(-50%);
+    top: -10px
+}
+
+.input {
+    position: relative;
+}
+
 .reservation {
     margin-top: 50px;
     display: flex;
@@ -461,7 +475,7 @@ section.menu {
     color: #fff;
     text-align: center;
     font-size: 16px;
-    margin-bottom: 25px;
+    margin-bottom: 30px;
 }
 
 .form-link {
@@ -480,8 +494,8 @@ section.menu {
     height: 56px;
     padding: 10px 20px;
     border: 1px solid hsla(0, 0%, 100%, 0.1);
-    margin-block-end: 20px;
     outline: none;
+    margin-block-end: 20px;
     transition: border-color 0.5s ease;
 }
   
@@ -497,6 +511,7 @@ section.menu {
 .icon-wrapper .input-field {
     margin-block-end: 0;
     padding-inline-start: 40px;
+    padding-inline-end: 30px;
     appearance: none;
     cursor: pointer;
 }
@@ -724,6 +739,11 @@ table {
     background-color: var(--main-color);
     width: 100%;
     font-size: 20px;
+}
+
+.clickable-row:hover {
+    background-color: gray;
+    cursor: pointer;
 }
   
 td,

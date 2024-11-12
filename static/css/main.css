@@ -100,6 +100,7 @@ a, a:active, a:focus {
     height: 50px;
     border-radius: 50%;
     cursor: pointer;
+    background: #fff;
 }
 
 .header .icons a{
@@ -130,6 +131,7 @@ a, a:active, a:focus {
 }
 
 .sub-menu {
+    min-width: 250px;
     border-radius: 20px;
     background: #fff;
     padding: 20px;

@@ -15,39 +15,47 @@
 
   <section class="profile">
     <h2 class="profile__title">
-      Настройки профиля: <span>Nikita Romanov.</span> <span>Баллы: 1000</span>
+      Настройки профиля: <span>{{ user.username }}.</span> <span>Баллы: 1000</span>
     </h2>
     <form class="profile__form" method="post" enctype="multipart/form-data" novalidate>
+      {% csrf_token %}
+      {% for field in form %}
+      {% if field.html_name == "avatar"%}
       <div class="profile__input">
-        <label class="profile__input-title" for="">Username</label>
-        <input type="text">
-      </div>
-
-      <div class="profile__input">
-        <label class="profile__input-title" for="">Email</label>
-        <input type="email">
-      </div>
-
-      <div class="profile__input">
-        <label class="profile__input-title" for="">Дата рождения</label>
-        <div class="icon-wrapper">
-          <ion-icon name="calendar-clear-outline" aria-hidden="true"></ion-icon>
-  
-          <input type="date" name="reservation-date" class="input-field">
-  
-          <ion-icon name="chevron-down" aria-hidden="true"></ion-icon>
-        </div>
-      </div>
-      
-      <div class="profile__input">
-        <label class="profile__input-title" for="">Avatar</label>
+        <label class="profile__input-title" for="">{{field.label_tag}}</label>
         <label class="profile__img"> 
-          <input type="file" name="file">    
+          {{field}}   
           <span class="profile__img-btn">Выберите файл</span>
         </label>
       </div>
+      {% else %}
+      <div class="profile__input">
+        <label class="profile__input-title" for="">{{field.label_tag}}</label>
+        {{field}}
+        {% if field.errors%}
+        {% for error in field.errors %}
+        <div class="alert alert-danger">
+            {{error}}
+        </div>
+        {% endfor %}
+        {% endif %}
+      </div>
+      {% endif %}
+      {% endfor %}
       
-      <img class="profile__avatar" src="{% static 'img/avatar.png' %}" alt="avatar">
+      <!-- <div class="profile__input">
+        <label class="profile__input-title" for="">Date:</label>
+        <div class="icon-wrapper">
+          <ion-icon name="calendar-clear-outline" aria-hidden="true"></ion-icon>
+      
+          <input type="date" name="date" class="input-field" id="id_date">
+  
+          <ion-icon name="chevron-down" aria-hidden="true"></ion-icon>
+        </div>
+      </div> -->
+      
+      
+      <img class="profile__avatar" src="{{ request.user.profile.avatar.url }}" alt="avatar">
 
       <button class="profile__btn">Сохранить</button>
     </form>

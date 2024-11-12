@@ -2,7 +2,9 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.core.paginator import Paginator
 from django.db.models import Count
-from datetime import date, timedelta
+from datetime import date, timedelta, time
+from django.utils import timezone
+from django.core.validators import RegexValidator
 
 # Create your models here.
 
@@ -53,35 +55,52 @@ class WorkerManager(models.Manager):
         return self.order_by('salary')
 
 
-
-
-
-
-
 class Review(models.Model):
-
-    class Ratings(models.IntegerChoices):
-        Amazing = 1
-        Good = 2
-        Bad = 3
-        Awful = 4
+    
+    RATING_CHOICES = (
+        (1, 'Удивительно!'),
+        (2, 'Хорошо!'),
+        (3, 'Плохо!'),
+        (4, 'Ужасно!'),
+    )
 
     title = models.CharField(max_length=50, blank=False)
     content = models.TextField(blank=False, max_length=200)
     date = models.DateField(blank=False, null=True)
+    time = models.TimeField(blank=False, null=True)
     profile = models.ForeignKey('Profile', on_delete=models.PROTECT, blank=True, null=True, default="")
     restaurant = models.ForeignKey('Restaurant', blank=True,  null=True, on_delete=models.PROTECT)
-    verdict = models.CharField(choices=Ratings, max_length=15)
+    verdict = models.CharField(choices=RATING_CHOICES, max_length=15)
     
     objects = ReviewManager()
 
     def __str__(self):
         return f'Review: {self.title}'
 
+class Reservation(models.Model):
+    GUESTS_CHOICES = (
+        (1, '1 гость'),
+        (2, '2 Гостя'),
+        (3, '3 Гостя'),
+        (4, '4 Гостя'),
+        (5, '5 Гостей'),
+        (6, '6 Гостей'),
+    )
+    HOUR_CHOICES = [(time(hour=x), '{:02d}:00'.format(x)) for x in range(10, 23)]
+
+    name = models.CharField(max_length=20, blank=False)
+    phone_regex = RegexValidator(regex=r'^\+?[7,8]?[\s,-]?\(?\d{3}\)?[\s,-]?\d{3}[\s,-]?\d{2}[\s,-]?\d{2}$', message="Invalid format")        
+    phone = models.CharField(validators=[phone_regex], max_length=12, null=False, blank=False, unique=True)
+    guests = models.IntegerField(choices=GUESTS_CHOICES, blank=False, default="")
+    date = models.DateField(blank=False, default=timezone.now().date())
+    time = models.TimeField(choices=HOUR_CHOICES, blank=False, default="")
+    comment = models.TextField(max_length=100, null=True, blank=True)
+
 
 class Profile(models.Model):
     profile = models.OneToOneField(User, null=True, on_delete=models.PROTECT, default="")
     avatar = models.ImageField(null=True, blank=True, default="avatar.png", upload_to="avatar/%Y/%M/%D")
+    date = models.DateField(null=True, blank=True)
 
     def __str__(self):
         return f'Profile: {self.profile}'
@@ -92,7 +111,8 @@ class Profile(models.Model):
 class Restaurant(models.Model):
     name = models.CharField(blank=False, max_length=32)
     address = models.CharField(blank=False, max_length=50)
-    phoneNumber = models.CharField(max_length=10, null=True)          
+    phone_regex = RegexValidator(regex=r'^\+?[7,8]?[\s,-]?\(?\d{3}\)?[\s,-]?\d{3}[\s,-]?\d{2}[\s,-]?\d{2}$', message="Invalid format")        
+    phone = models.CharField(validators=[phone_regex], max_length=12, null=True)          
 
     objects = RestaurantManager()
 

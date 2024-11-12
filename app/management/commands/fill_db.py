@@ -3,7 +3,6 @@ from random import randint
 from faker import Faker
 from datetime import datetime
 from app.models import Review, Restaurant, Worker, Order, Dish, Profile, User, Section, Menu, Profession
-
 fake = Faker()
 
 
@@ -28,12 +27,12 @@ class Command(BaseCommand):
             Restaurant(
                 name = "Hunter",
                 address = "aa:bb:cc",
-                phoneNumber = fake.phone_number(),
+                phone = fake.phone_number(),
             ),
             Restaurant(
                 name = "Butin",
                 address = "aa:bb:cc",
-                phoneNumber = fake.phone_number(),
+                phone = fake.phone_number(),
             )
         ]
 
@@ -139,14 +138,15 @@ class Command(BaseCommand):
         profiles_count = profiles.count()
         
         reviews = []
-        
+    
         for i in range(reviews_size):
             r = Review(
                 title = fake.sentence(nb_words=3),
                 content = fake.text(),
                 profile = profiles.get(pk=randint(1, profiles_count)),
                 date = str(fake.date_between(datetime(2022,1,1), datetime(2023,12,31))),
-                verdict = 1,
+                time = fake.time(pattern = '%H:%M'),
+                verdict = Review.RATING_CHOICES[randint(0, len(Review.RATING_CHOICES)-1)][1],
                 restaurant = restaurants.get(pk=randint(1, restaurants_count))
             ) 
             r.save()

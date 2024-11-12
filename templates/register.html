@@ -1,0 +1,45 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Hunter</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+  <link rel="stylesheet" href="{% static '/css/reset.css' %}"/>
+  <link rel="stylesheet" href="{% static '/css/access.css' %}"/>
+</head>
+<body> 
+
+  <section class="register">
+    <h2 class="register__title">
+      Регистрация:
+    </h2>
+    <form class="register__form" method="post" enctype="multipart/form-data" novalidate>
+      {% csrf_token %}
+      {% for field in form %}
+      <div class="register__input">
+        <label class="register__input-title" for="">{{field.label_tag}}</label>
+        {{field}}
+        {% if field.errors%}
+        {% for error in field.errors %}
+        <div class="alert alert-danger">
+            {{error}}
+        </div>
+        {% endfor %}
+        {% endif %}
+      </div>
+      {% endfor %}
+
+      <div class="login_or_register">
+        <a href="{% url 'login' %}">У вас уже есть профиль?</a>
+      </div>
+      <button class="register__btn">Регистрация</button>
+    </form>
+  </section>
+
+</body>
+</html>
+
