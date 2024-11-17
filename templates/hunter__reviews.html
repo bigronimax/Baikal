@@ -2,6 +2,11 @@
 
 {% block content %}
 <section class="reviews">
+  <div class="reviews__top">
+    <a href="{% url 'hunterReviewsAdd' %}" class="reviews__top-href">
+      Написать отзыв
+    </a>
+  </div>
   <div class="reviews__body">
     {% for review in reviews %}
 
@@ -9,7 +14,11 @@
 
     {% endfor %}
 
+    {% if num_pages > 1 %}
+
     {% include 'components/paginator.html' %}
+
+    {% endif %}
   </div>
 </section>
 {% endblock %}

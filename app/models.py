@@ -1,7 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
-from django.core.paginator import Paginator
-from django.db.models import Count
+from django.db.models import Count, Sum, F, Min, Max
 from datetime import date, timedelta, time
 from django.utils import timezone
 from django.core.validators import RegexValidator
@@ -14,24 +13,34 @@ class ReviewManager(models.Manager):
         return self.filter(restaurant__name=restaurant)
     
     def get_new_by_restaurant(self, restaurant):
-        return self.order_by('-date')[:15]
+        return self.filter(restaurant__name=restaurant).order_by('-date')[:15]
     
 class RestaurantManager(models.Manager):
+
     def get_by_name(self, _name):
         return self.filter(name = _name)
     
 class ProfileManager(models.Manager):
 
-    def get_popular_profiles(self):
-        return list(self.all())[0:10]
-        # startdate = date.today()
-        # enddate = startdate + timedelta(days=6)
-        # return self.filter(date__range=[startdate, enddate]).order_by('-rating')[:10]
+    pass
+
+class ReservationManager(models.Manager):
+    def get_sum_guests_by_restaurant(self, restaurant):
+        return self.filter(restaurant__name=restaurant).aggregate(total=Sum('guests'), default=0)['total']
 
 class OrderManager(models.Manager):
 
-    def get_new_orders(self):
-        return self.order_by('-date').order_by('-time')
+    def get_all_by_restaurant(self, restaurant):
+        return self.filter(restaurant__name=restaurant)
+    
+    def get_new_by_restaurant(self, restaurant):
+        return self.filter(restaurant__name=restaurant).order_by('-date')[:15]
+    
+    def get_all_by_user(self, user):
+        return self.filter(profile__profile = user).order_by('-date')
+    
+    def get_sum_cost_by_id(self, order_id):
+        return self.get(id=order_id).dishes.all().aggregate(total=Sum(F('price') * F('quantity')))['total']
 
 class DishManager(models.Manager):
 
@@ -54,23 +63,29 @@ class WorkerManager(models.Manager):
     def get_highly_paid_waiters(self):
         return self.order_by('salary')
 
+class SupplyManager(models.Manager):
+
+    def get_all_by_restaurant(self, restaurant):
+        return self.filter(restaurant__name=restaurant)
+    
+    def get_sum_cost_by_restaurant(self, restaurant):
+        return self.filter(restaurant__name=restaurant).aggregate(total=Sum(F('price') * F('weight'), default=0))['total']
 
 class Review(models.Model):
     
     RATING_CHOICES = (
-        (1, 'Удивительно!'),
-        (2, 'Хорошо!'),
-        (3, 'Плохо!'),
-        (4, 'Ужасно!'),
+        ('Удивительно!', 'Удивительно!'),
+        ('Хорошо!', 'Хорошо!'),
+        ('Плохо!', 'Плохо!'),
+        ('Ужасно!', 'Ужасно!'),
     )
 
     title = models.CharField(max_length=50, blank=False)
     content = models.TextField(blank=False, max_length=200)
-    date = models.DateField(blank=False, null=True)
-    time = models.TimeField(blank=False, null=True)
+    date = models.DateTimeField(blank=False, null=True)
     profile = models.ForeignKey('Profile', on_delete=models.PROTECT, blank=True, null=True, default="")
     restaurant = models.ForeignKey('Restaurant', blank=True,  null=True, on_delete=models.PROTECT)
-    verdict = models.CharField(choices=RATING_CHOICES, max_length=15)
+    verdict = models.CharField(choices=RATING_CHOICES, max_length=15, default="")
     
     objects = ReviewManager()
 
@@ -95,12 +110,14 @@ class Reservation(models.Model):
     date = models.DateField(blank=False, default=timezone.now().date())
     time = models.TimeField(choices=HOUR_CHOICES, blank=False, default="")
     comment = models.TextField(max_length=100, null=True, blank=True)
+    #restaurant = models.ForeignKey('Restaurant', blank=True,  null=True, on_delete=models.PROTECT)
+
+    objects = ReservationManager()
 
 
 class Profile(models.Model):
     profile = models.OneToOneField(User, null=True, on_delete=models.PROTECT, default="")
     avatar = models.ImageField(null=True, blank=True, default="avatar.png", upload_to="avatar/%Y/%M/%D")
-    date = models.DateField(null=True, blank=True)
 
     def __str__(self):
         return f'Profile: {self.profile}'
@@ -109,7 +126,7 @@ class Profile(models.Model):
     
 
 class Restaurant(models.Model):
-    name = models.CharField(blank=False, max_length=32)
+    name = models.CharField(blank=False, max_length=32, default="")
     address = models.CharField(blank=False, max_length=50)
     phone_regex = RegexValidator(regex=r'^\+?[7,8]?[\s,-]?\(?\d{3}\)?[\s,-]?\d{3}[\s,-]?\d{2}[\s,-]?\d{2}$', message="Invalid format")        
     phone = models.CharField(validators=[phone_regex], max_length=12, null=True)          
@@ -117,12 +134,13 @@ class Restaurant(models.Model):
     objects = RestaurantManager()
 
     def __str__(self):
-        return f'Restaurant: {self.name}'
+        return f'{self.name}'
 
 class Order(models.Model):
-    guests = models.IntegerField()
-    date = models.DateField(blank=False, null=True)
-    time = models.TimeField(blank=False, null=True)
+    profile = models.ForeignKey('Profile', on_delete=models.PROTECT, blank=True, null=True, default="")
+    table = models.IntegerField(blank=False, null=True, default=1)
+    guests = models.IntegerField(blank=False, null=True, default=1)
+    date = models.DateTimeField(blank=False, null=True)
     dishes = models.ManyToManyField('Dish', blank=True)
     restaurant = models.ForeignKey('Restaurant', blank=True, on_delete=models.PROTECT)
     objects = OrderManager()
@@ -140,16 +158,24 @@ class Menu(models.Model):
     objects = MenuManager()
 
 class Section(models.Model):
+    SECTION_CHOICES = (
+        ('Комбо', 'Комбо'),
+        ('Закуски', 'Закуски'),
+        ('Супы', 'Супы'),
+    )
     menu = models.ForeignKey(
         Menu,
         on_delete=models.CASCADE,
         related_name='sections',
     )
-    name = models.CharField(max_length=255)
+    name = models.CharField(choices=SECTION_CHOICES, max_length=10, blank=False, default="")
+
+    def __str__(self):
+        return f'{self.name}, {self.menu.restaurant.name}'
 
 class Dish(models.Model):
     name = models.CharField(blank=False, max_length=32)
-    content = models.TextField(blank=False, max_length=200)
+    content = models.TextField(blank=False, max_length=32)
     section = models.ForeignKey(
         Section,
         on_delete=models.CASCADE,
@@ -157,20 +183,30 @@ class Dish(models.Model):
     )
     price = models.IntegerField()
     weight = models.IntegerField()
-    isEnable = models.BooleanField()
+    quantity = models.IntegerField(default=1)
+    img = models.ImageField(null=True, blank=True, default="dish.webp", upload_to="dish_image/%Y/%M/%D")
 
     objects = DishManager()
 
     def __str__(self):
-        return f'Dish: {self.name}'
+        return f'{self.name} x{self.quantity}'
 
 class Profession(models.Model):
+    PROFESSION_CHOICES = (
+        ('Официанты', 'Официанты'),
+        ('Повара', 'Повара'),
+        ('Менеджеры', 'Менеджеры'),
+    )
     restaurant = models.ForeignKey(
         Restaurant,
         on_delete=models.CASCADE,
-        related_name='professions'
+        related_name='professions',
+        default=""
     )
-    name = models.CharField(max_length=255)
+    name = models.CharField(choices=PROFESSION_CHOICES, max_length=10, blank=False, default="")
+
+    def __str__(self):
+        return f'{self.name}, {self.restaurant.name}'
 
 class Worker(models.Model):
 
@@ -179,21 +215,25 @@ class Worker(models.Model):
         Profession,
         on_delete=models.CASCADE,
         related_name='workers',
+        default=""
     )
     salary = models.IntegerField()
-    avatar = models.ImageField(null=True, blank=True, default="worker.png", upload_to="avatar/%Y/%M/%D")
+    avatar = models.ImageField(null=True, blank=True, default="worker.jpeg", upload_to="avatar/%Y/%M/%D")
 
     objects = WorkerManager()
 
     def __str__(self):
         return f'Worker: {self.name}'
 
-def paginate(request, objects, per_page=3):
-    paginator = Paginator(objects, per_page)
-    page_number = request.GET.get('page', 1)
-    page_obj = paginator.get_page(page_number)
-    page_items = paginator.page(page_number)
-    return {'items': page_items, 'obj': page_obj}
+class Supply(models.Model):
+    name = models.CharField(blank=False, max_length=32)
+    provider = models.CharField(blank=False, max_length=32)
+    restaurant = models.ForeignKey('Restaurant', blank=True,  null=True, on_delete=models.PROTECT)
+    price = models.IntegerField()
+    weight = models.IntegerField()
+
+    objects = SupplyManager()
+
     
 
 

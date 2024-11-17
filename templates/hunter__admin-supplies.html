@@ -8,36 +8,26 @@
           <tr>
             <th>Продукт</th>
             <th>Поставщик</th>
-            <th>Цена, руб.</th>
+            <th>Цена, руб/кг</th>
             <th>Вес, кг</th>
           </tr>
         </thead>
         <tbody>
-          <tr>
-            <td>Помидоры</td>
-            <td>Барабара</td>
-            <td>1000</td>
-            <td>10</td>
+          {% for sup in supplies %}
+          <tr class="clickable-row" data-href="{% url 'hunterAdminSuppliesEdit' supply_id=sup.id %}">
+            <td>{{ sup.name }}</td>
+            <td>{{ sup.provider }}</td>
+            <td>{{ sup.price }}</td>
+            <td>{{ sup.weight }}</td>
           </tr>
+          {% endfor %}
           <tr>
-            <td>Говядина</td>
-            <td>Герегере</td>
-            <td>12000</td>
-            <td>50</td>
-          </tr>
-          <tr>
-            <td>Свинина</td>
-            <td>Пупупу</td>
-            <td>10000</td>
-            <td>50</td>
-          </tr>
-          <tr>
-            <td colspan="4" class="text-right text-bold">Всего: 230000 рублей</td>
+            <td colspan="4" class="text-right text-bold">Всего: {{ sum_cost }} рублей</td>
           </tr>
         </tbody>
     </table>
     <div class="table__edit">
-        <button class="btn-2">Добавить</button>
+      <a href="{% url 'hunterAdminSuppliesAdd' %}"><button class="btn-2">Добавить</button></a>
     </div>
   </div>
 </div>

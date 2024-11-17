@@ -1,13 +1,14 @@
 {% load static %}
 
-<div class="dish">
+<div class="dish dish-admin">
+  <a href="{% url 'hunterAdminMenuEdit' dish_id=dish.id %}" class="dish__card">
     <div class="dish__photo">
-      <img src="{% static 'img/test.webp' %}" alt="">
+      <img src="{{ dish.img.url }}" alt="">
     </div>
     <div class="dish__content">
-      <a href="" class="dish__name">
+      <div class="dish__name">
         {{ dish.name }}
-      </a>
+      </div>
       <div class="dish__text">
         {{ dish.content }}
       </div>
@@ -20,9 +21,9 @@
             {{ dish.weight }} Г
           </div>
         </div>
-        <div class="dish__plus">
         
-        </div>
       </div>
     </div>
+  </a>
+
 </div>

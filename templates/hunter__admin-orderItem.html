@@ -1,0 +1,27 @@
+{% extends 'layouts/hunter__admin-base.html' %} 
+
+{% block content %}
+<div class="fragment">
+  <div class="order__item">
+    <div class="order__item-info">
+      <h2 class="order__item-title">
+        Информация о заказе {{ order.id }}:
+      </h2>
+      <ul class="order__info-list">
+        <li class="order__info-item">Гостей: {{ order.guests }}</li>
+        <li class="order__info-item">Чек: {{ sum_cost }} рублей</li>
+        <li class="order__info-item">Дата: {{ order.date }}</li>
+      </ul>
+    </div>
+    <h2 class="order__dishes-title">Блюда:</h2>
+    <div class="order__item-dishes">
+      {% for dish in order.dishes.all %}
+  
+      {% include 'components/dish-item-preview.html' %}
+  
+      {% endfor %}
+    </div>
+    
+  </div>
+</div>
+{% endblock %}

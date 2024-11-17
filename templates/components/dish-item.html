@@ -2,26 +2,26 @@
 
 <div class="dish">
     <div class="dish__photo">
-      <img src="{% static 'img/test.webp' %}" alt="">
+      <img src="{{ dish.img.url }}" alt="">
     </div>
     <div class="dish__content">
-      <a href="" class="dish__name">
+      <div class="dish__name" id="dish-name-{{ dish.id }}">
         {{ dish.name }}
-      </a>
+      </div>
       <div class="dish__text">
         {{ dish.content }}
       </div>
       <div class="dish__footer">
         <div class="dish__value">
-          <div class="dish__price">
+          <div class="dish__price" id="dish-price-{{ dish.id }}">
             {{ dish.price }} Р
           </div>
           <div class="dish__size">
             {{ dish.weight }} Г
           </div>
         </div>
-        <div class="dish__plus">
-        
+        <div class="dish__plus" data-id="{{ dish.id }}">
+          
         </div>
       </div>
     </div>

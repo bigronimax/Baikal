@@ -2,7 +2,7 @@ from django.core.management import BaseCommand
 from random import randint
 from faker import Faker
 from datetime import datetime
-from app.models import Review, Restaurant, Worker, Order, Dish, Profile, User, Section, Menu, Profession
+from app.models import Review, Restaurant, Worker, Order, Dish, Profile, User, Section, Menu, Profession, Supply
 fake = Faker()
 
 
@@ -16,11 +16,12 @@ class Command(BaseCommand):
         num = kwargs['ratio']
 
         restaurants_size = 2
-        reviews_size = num*10
+        reviews_size = num * 10
         profiles_size = num
-        orders_size = num
-        workers_size = num
-        dishes_size = num*5
+        orders_size = num * 5
+        workers_size = num * 5
+        dishes_size = num * 5
+        supplies_size = num 
 
 
         restaurants = [
@@ -117,7 +118,6 @@ class Command(BaseCommand):
                 content = fake.text(max_nb_chars=20),
                 price = randint(400, 800),
                 weight = randint(250, 500),
-                isEnable = randint(0, 1),
                 section = sections.get(pk=randint(1, sections_count)),
             ) 
             d.save()
@@ -144,29 +144,43 @@ class Command(BaseCommand):
                 title = fake.sentence(nb_words=3),
                 content = fake.text(),
                 profile = profiles.get(pk=randint(1, profiles_count)),
-                date = str(fake.date_between(datetime(2022,1,1), datetime(2023,12,31))),
-                time = fake.time(pattern = '%H:%M'),
+                date = str(fake.date_time_between(datetime(2022,1,1, 0, 0, 0, 0), datetime(2023,12,31, 0, 0, 0, 0))),
                 verdict = Review.RATING_CHOICES[randint(0, len(Review.RATING_CHOICES)-1)][1],
                 restaurant = restaurants.get(pk=randint(1, restaurants_count))
             ) 
             r.save()
-            #r.restaurant.add()
             reviews.append(r)
      
         reviews = Review.objects
         reviews_count = reviews.count()
+
+        supplies = []
+    
+        for i in range(supplies_size):
+            s = Supply(
+                name = fake.word(),
+                provider = fake.word(),
+                restaurant = restaurants.get(pk=randint(1, restaurants_count)),
+                price = randint(400, 800),
+                weight = randint(5, 20)
+            ) 
+            s.save()
+            supplies.append(s)
+     
+        supplies = Supply.objects
+        supplies_count = supplies.count()
      
         orders = []
 
         for i in range(orders_size):
             o = Order(
                 guests = randint(1, 7),
-                date = str(fake.date_between(datetime(2022,1,1), datetime(2023,12,31))),
-                time = fake.time(pattern = '%H:%M'),
+                date = str(fake.date_time_between(datetime(2022,1,1, 0, 0, 0, 0), datetime(2023,12,31, 0, 0, 0, 0))),
                 restaurant = restaurants.get(pk=randint(1, restaurants_count))
             ) 
             o.save()
-            o.dishes.add(dishes.get(pk=randint(1, dishes_count)))
+            for i in range(randint(1, 5)):
+                o.dishes.add(dishes.get(pk=randint(1, dishes_count)))
             orders.append(o)
         
         orders = Order.objects
@@ -179,44 +193,9 @@ class Command(BaseCommand):
                 name = fake.sentence(nb_words=1),
                 profession = professions.get(pk=randint(1, professions_count)),
                 salary = randint(50000, 100000),
-                avatar = 'img/alisson.jpeg'
             )
             w.save()
             workers.append(w)
         workers = Worker.objects
         workers_count = workers.count()
-
-
-        # answers = [
-        #     Answer(
-        #         question = questions.get(pk=randint(1, questions_count)),
-        #         content = fake.text(),
-        #         rating = randint(0, 100000),
-        #         profile = profiles.get(pk=randint(1, profiles_count)),
-        #         date = str(fake.date_between(datetime(2022,1,1), datetime(2023,12,31)))
-        #     ) for i in range(answers_size)
-        # ]
-        # Answer.objects.bulk_create(answers)
-        # answers = Answer.objects
-        # answers_count = answers.count()
-
-        # questionLikes = [
-        #     QuestionLike(
-        #         profile = profiles.get(pk=randint(1, profiles_count)),
-        #         question = questions.get(pk=randint(1, questions_count)),
-        #         like = randint(0, 1)
-        #     ) for i in range(likes_size // 2)
-        # ]
-
-        # QuestionLike.objects.bulk_create(questionLikes)
-
-        # answerLikes = [
-        #     AnswerLike(
-        #         profile = profiles.get(pk=randint(1, profiles_count)),
-        #         answer = answers.get(pk=randint(1, answers_count)),
-        #         like = randint(0, 1)
-        #     ) for i in range(likes_size // 2)
-        # ]
-
-        # AnswerLike.objects.bulk_create(answerLikes)
         

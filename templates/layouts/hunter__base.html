@@ -17,20 +17,26 @@
       HUNTER
     </a>
 
+    {% with request.resolver_match.url_name as url_name %}
     <nav class="navbar">
-      <a class="current__page" href="{% url 'hunterIndex' %}">Главная</a>
-      <a href="{% url 'hunterMenu' %}">Меню</a>
-      <a href="{% url 'hunterReservation' %}">Забронировать</a>
-      <a href="{% url 'hunterReviews' %}">Отзывы</a>
+      <a class="{% if url_name == 'hunterIndex' %}current__page{% endif %}" href="{% url 'hunterIndex' %}">Главная</a>
+      <a class="{% if url_name == 'hunterMenu' %}current__page{% endif %}" href="{% url 'hunterMenu' %}">Меню</a>
+      <a class="{% if url_name == 'hunterReservation' %}current__page{% endif %}" href="{% url 'hunterReservation' %}">Забронировать</a>
+      <a class="{% if url_name == 'hunterReviews' %}current__page{% endif %}" href="{% url 'hunterReviews' %}">Отзывы</a>
+      {% if user.is_authenticated %}
+      <a class="{% if url_name == 'hunterOrders' %}current__page{% endif %}" href="{% url 'hunterOrders' %}">Заказы</a>
+      {% endif %}
     </nav>
 
     <div class="icons">
       {% if user.is_authenticated %}
-      <img src="{{ request.user.profile.avatar.url }}" class="fas fa-user profile" id="prof-btn" onclick="toggleMenu()"></img>
+      <img class="profile__icon" src="{{ request.user.profile.avatar.url }}" class="fas fa-user profile" id="prof-btn" onclick="toggleMenu()"></img>
       {% else %}
-      <img src="{% static '/img/avatar.png' %}" class="fas fa-user profile" id="prof-btn" onclick="toggleMenu()"></img>
+      <img class="profile__icon" src="{% static '/img/avatar.png' %}" class="fas fa-user profile" id="prof-btn" onclick="toggleMenu()"></img>
       {% endif %}
+      <a href="{% url 'cartSummary' %}"><ion-icon class="{% if url_name == 'cartSummary' %}current__icon{% else %}cart__icon{% endif %}" name="cart-outline"></ion-icon><span class="cart__size" id="cart_quantity">{{ cart|length }}</span></a>
     </div>
+    {% endwith %}
 
     <div class="sub-menu-wrap" id="subMenu">
       <div class="sub-menu">
@@ -85,8 +91,9 @@
   
   <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
   <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
   <script src="{% static 'js/hunter.js' %}"></script>
+  <script src="{% static 'js/cart.js' %}"></script>
 </body>
 </html>
 

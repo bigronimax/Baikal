@@ -1,0 +1,43 @@
+{% extends 'layouts/hunter__base.html' %}
+{% load static %}
+{% block content %}
+<section class="cart">
+
+  
+  <div class="dishes">
+    <h2 class="dishes__list-title">Список блюд: </h2>
+    <div class="dishes__list">
+      {% if cart_dishes.all %}
+        {% for dish in cart_dishes.all %}
+
+        {% include 'components/dish-item-preview.html' %}
+
+        {% endfor %}
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="cart__info">
+    <h2 class="cart__total" id="total">Всего: 15060Р</h2>
+    <form class="pay__form" method="post" enctype="multipart/form-data" novalidate>
+      {% csrf_token %}
+      {% for field in form %}
+      <div class="edit__input">
+        <label class="edit__input-title" for="">{{field.label_tag}}</label>
+        {{field}}
+        {% if field.errors%}
+        {% for error in field.errors %}
+        <div class="alert alert-danger">
+            {{error}}
+        </div>
+        {% endfor %}
+        {% endif %}
+      </div>
+      {% endfor %}
+      <button class="pay__btn">Оплатить</button>
+    </form>
+  </div>
+
+</section>
+<script src="{% static 'js/order.js' %}"></script>
+{% endblock %}

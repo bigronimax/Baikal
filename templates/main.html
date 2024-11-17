@@ -28,9 +28,9 @@
 
     <div class="icons">
       {% if user.is_authenticated %}
-      <img src="{{ request.user.profile.avatar.url }}" class="fas fa-user profile" id="prof-btn" onclick="toggleMenu()"></img>
+      <img class="profile__icon" src="{{ request.user.profile.avatar.url }}" class="fas fa-user profile" id="prof-btn" onclick="toggleMenu()"></img>
       {% else %}
-      <img src="{% static '/img/avatar.png' %}" class="fas fa-user profile" id="prof-btn" onclick="toggleMenu()"></img>
+      <img class="profile__icon" src="{% static '/img/avatar.png' %}" class="fas fa-user profile" id="prof-btn" onclick="toggleMenu()"></img>
       {% endif %}
     </div>
 

@@ -2,7 +2,8 @@ from django import forms
 from django.contrib.auth.models import User
 from django.forms import ImageField, ValidationError
 from django.core.validators import validate_email
-from app.models import Review, Profile, Reservation
+from app.models import Review, Profile, Reservation, Worker, Supply, Dish, Restaurant
+from django.utils import timezone
 
 
 class LoginForm(forms.Form):
@@ -77,28 +78,139 @@ class ProfileForm(forms.ModelForm):
 
         profile = user.profile
         received_avatar = self.cleaned_data.get('avatar')
-        received_date = self.cleaned_data.get('date')
         new_username = self.cleaned_data.get('username')
         new_email = self.cleaned_data.get('email')
 
         if new_username != user.username:
             user.username = new_username
+            profile.save()
         if new_email != user.email:
             user.email = new_email
-        if received_avatar:
-            profile.avatar = self.cleaned_data.get('avatar')
             profile.save()
-        if received_date:
-            profile.date = self.cleaned_data.get('date')
+        if received_avatar:
+            profile.avatar = received_avatar
             profile.save()
 
         return user
+
+class WorkerForm(forms.ModelForm):
+    
+    class Meta:
+        model = Worker
+        fields = "__all__"
+        widgets = {
+            'salary': forms.TextInput(attrs={'type': 'text'}),
+            'avatar': forms.FileInput(attrs={'type': 'file'}),
+        }
+    
+    def save(self, **kwargs):
+        worker = super().save(**kwargs)
+
+        received_avatar = self.cleaned_data.get('avatar')
+        new_name = self.cleaned_data.get('name')
+        new_salary = self.cleaned_data.get('salary')
+        new_profession = self.cleaned_data.get('profession')
+
+        if new_name != worker.name:
+            worker.name = new_name
+            worker.save()
+        if new_salary != worker.salary:
+            worker.salary = new_salary
+            worker.save()
+        if new_profession != worker.profession:
+            worker.profession = new_profession
+            worker.save()
+        if received_avatar:
+            worker.avatar = received_avatar
+            worker.save()
+        
+
+        return worker
+
+class SupplyForm(forms.ModelForm):
+    
+    class Meta:
+        model = Supply
+        fields = "__all__"
+        widgets = {
+            'price': forms.TextInput(attrs={'type': 'text'}),
+            'weight': forms.TextInput(attrs={'type': 'text'}),
+        }
+    
+    def save(self, **kwargs):
+        supply = super().save(**kwargs)
+
+        new_name = self.cleaned_data.get('name')
+        new_provider = self.cleaned_data.get('provider')
+        new_restaurant = self.cleaned_data.get('restaurant')
+        new_price = self.cleaned_data.get('price')
+        new_weight = self.cleaned_data.get('weight')
+
+        if new_name != supply.name:
+            supply.name = new_name
+            supply.save()
+        if new_provider != supply.provider:
+            supply.provider = new_provider
+            supply.save()
+        if new_restaurant != supply.restaurant:
+            supply.restaurant = new_restaurant
+            supply.save()
+        if new_price != supply.price:
+            supply.price = new_price
+            supply.save()
+        if new_weight != supply.weight:
+            supply.weight = new_weight
+            supply.save()
+
+        return supply
+
+class DishForm(forms.ModelForm):
+    
+    class Meta:
+        model = Dish
+        fields = "__all__"
+        widgets = {
+            'price': forms.TextInput(attrs={'type': 'text'}),
+            'weight': forms.TextInput(attrs={'type': 'text'}),
+            'img': forms.FileInput(attrs={'type': 'file'}),
+        }
+        
+    
+    def save(self, **kwargs):
+        dish = super().save(**kwargs)
+
+        new_name = self.cleaned_data.get('name')
+        new_content = self.cleaned_data.get('content')
+        new_section = self.cleaned_data.get('section')
+        new_price = self.cleaned_data.get('price')
+        new_weight = self.cleaned_data.get('weight')
+        received_img = self.cleaned_data.get('img')
+
+        if new_name != dish.name:
+            dish.name = new_name
+            dish.save()
+        if new_content != dish.content:
+            dish.content = new_content
+            dish.save()
+        if new_section != dish.section:
+            dish.section = new_section
+            dish.save()
+        if new_price != dish.price:
+            dish.price = new_price
+            dish.save()
+        if new_weight != dish.weight:
+            dish.weight = new_weight
+            dish.save()
+        if received_img:
+            dish.img = received_img
+            dish.save()
+        return dish
 
 class ReservationForm(forms.ModelForm):
 
     class Meta:
         model = Reservation
-        fields = "__all__"
+        fields = ["name", "phone", "guests", "date", "time", "comment"]
         widgets = {
             'name': forms.TextInput(attrs={'placeholder': 'Ваше имя'}),
             'phone': forms.TextInput(attrs={'placeholder': 'Номер тел.'}),
@@ -112,17 +224,36 @@ class ReservationForm(forms.ModelForm):
         for field in self.fields.values():
             field.widget.attrs.update({"class": "input-field"})
     
-    def save(self):
-        reservation = Reservation(
-            name = self.cleaned_data['name'],
-            phone = self.cleaned_data['phone'],
-            guests = self.cleaned_data['guests'],
-            date = self.cleaned_data['date'],
-            time = self.cleaned_data['time'],
-            comment = self.cleaned_data['comment'],
-        )
-        reservation.save()
+    def save(self, **kwargs):
+        reservation = super().save(**kwargs)
 
+        new_name = self.cleaned_data['name']
+        new_phone = self.cleaned_data['phone']
+        new_guests = self.cleaned_data['guests']
+        new_date = self.cleaned_data['date']
+        new_time = self.cleaned_data['time']
+        new_comment = self.cleaned_data['comment']
+        
+
+        if new_name != reservation.name:
+            reservation.name = new_name
+            reservation.save()
+        if new_phone != reservation.phone:
+            reservation.phone = new_phone
+            reservation.save()
+        if new_guests != reservation.guests:
+            reservation.guests = new_guests
+            reservation.save()
+        if new_date != reservation.date:
+            reservation.date = new_date
+            reservation.save()
+        if new_time != reservation.time:
+            reservation.time = new_time
+            reservation.save()
+        if new_comment != reservation.comment: 
+            reservation.comment = new_comment
+            reservation.save()
+            
         return reservation
 
     
@@ -134,11 +265,18 @@ class ReviewForm(forms.ModelForm):
 
     class Meta:
         model = Review
-        fields = ['title', 'content']
+        fields = ['title', 'content', 'verdict']
 
-    def save(self):
+    def save(self, restaurant):
         profile = Profile.objects.get(profile=self.user)
-        review = Review(profile=profile, title=self.cleaned_data['title'], content=self.cleaned_data['content'])
+        review = Review(
+            profile = profile, 
+            title = self.cleaned_data['title'], 
+            content = self.cleaned_data['content'], 
+            restaurant = Restaurant.objects.get(name=restaurant),
+            date = timezone.now().date(),
+            verdict = self.cleaned_data['verdict'],
+        )
         review.save()
 
         return review

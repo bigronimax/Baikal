@@ -9,6 +9,10 @@
     {% include 'components/staff-group-admin-item.html' %}
 
     {% endfor %}
+
+    <div class="list__edit">
+      <a href="{% url 'hunterAdminStaffAdd' %}"><button class="btn-2">Добавить</button></a>
+    </div>
     
   </div>
 </div>

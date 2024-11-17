@@ -16,7 +16,7 @@
         </thead>
         <tbody>
           {% for res in reservations %}
-          <tr class="clickable-row" data-href="/main">
+          <tr class="clickable-row" data-href="{% url 'hunterAdminReservationsEdit' reservation_id=res.id %}">
             <td>{{ res.name }}</td>
             <td>{{ res.time }}</td>
             <td>{{ res.date }}</td>
@@ -26,12 +26,12 @@
           </tr>
           {% endfor %}
           <tr>
-            <td colspan="6" class="text-right text-bold">Всего: 15 гостей</td>
+            <td colspan="6" class="text-right text-bold">Всего: {{ sum_guests }} гостей</td>
           </tr>
         </tbody>
     </table>
     <div class="table__edit">
-      <button class="btn-2">Добавить</button>
+      <a href="{% url 'hunterAdminReservationsAdd' %}"><button class="btn-2">Добавить</button></a>
     </div>
   </div>
 </div>
