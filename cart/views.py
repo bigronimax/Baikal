@@ -17,19 +17,24 @@ def cartSummary(request):
     cart = Cart(request)
 
     cart_dishes = cart.get_dishes()
+    sum_cost = cart.get_sum_cost()
+    cart_quantity = cart.__len__()
 
     if request.method == 'GET':
         add_form = OrderForm(initial=model_to_dict(request.user))
     if request.method == 'POST':
         add_form = OrderForm(request.POST, instance=request.user, initial=model_to_dict(request.user))
         if add_form.is_valid():
+            cart_dishes = cart.get_dishes()
             order = add_form.save(cart_dishes, "Hunter")
+            cart.empty()
+            cart_quantity = cart.__len__()
             if order:
                 return redirect(reverse('hunterOrders'))
             else:
                 add_form.add_error(None, 'Error with creating a new order!')
 
-    return render(request, "hunter__cart.html", {"form": add_form, "cart_dishes": cart_dishes})
+    return render(request, "hunter__cart.html", {"form": add_form, "cart_dishes": cart_dishes, "sum_cost": sum_cost, 'qty': cart_quantity})
 
 @csrf_protect
 def cartAdd(request):
@@ -39,14 +44,29 @@ def cartAdd(request):
 
     dish = get_object_or_404(Dish, id=dish_id)
 
-    cart.add(dish=dish)
+    dish_qty = cart.add(dish=dish)
 
     cart_quantity = cart.__len__()
-    #respone = JsonResponse({'Dish name: ' : dish.name})
-    respone = JsonResponse({'qty': cart_quantity})
+    sum_cost = cart.get_sum_cost()
+ 
+    respone = JsonResponse({'qty': cart_quantity, 'dish_qty': dish_qty, "sum_cost": sum_cost})
     return respone
 
 def cartDelete(request):
-    pass
+    cart = Cart(request)
+    
+    dish_id = request.POST.get("dish_id")
+
+    dish = get_object_or_404(Dish, id=dish_id)
+
+    dish_qty = cart.delete(dish=dish)
+
+    cart_quantity = cart.__len__()
+    sum_cost = cart.get_sum_cost()
+
+    respone = JsonResponse({'qty': cart_quantity, 'dish_qty': dish_qty, "sum_cost": sum_cost})
+    return respone
+
+
 
 

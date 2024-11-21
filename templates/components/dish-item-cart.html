@@ -1,0 +1,30 @@
+{% load static %}
+
+<div class="dish">
+    <div class="dish__photo">
+      <img src="{{ orderDish.dish.img.url }}" alt="">
+    </div>
+    <div class="dish__content">
+      <div class="dish__name">
+        {{ orderDish.dish.name }}
+      </div>
+      <div class="dish__text">
+        {{ orderDish.dish.content }}
+      </div>
+      <div class="dish__footer">
+        <div class="dish__value">
+          <div class="dish__price">
+            {{ orderDish.dish.price }} Р
+          </div>
+          <div class="dish__size">
+            {{ orderDish.dish.weight }} Г
+          </div>
+        </div>
+        <div class="dish__quantity-cart">
+            <button class="number-minus" type="button" data-id="{{ orderDish.dish.id }}">-</button>
+            <span class="number">{{ orderDish.quantity }}</span>
+            <button class="number-plus" type="button" data-id="{{ orderDish.dish.id }}">+</button>
+        </div>
+      </div>
+    </div>
+</div>

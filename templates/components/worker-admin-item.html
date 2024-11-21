@@ -2,9 +2,9 @@
 
 <div class="worker">
     <a href="{% url 'hunterAdminStaffEdit' worker_id=worker.id %}" class="worker__card">
-      <img src="{{ worker.avatar.url }}" alt="worker" class="worker__img">
+      <img src="{{ worker.profile.avatar.url }}" alt="worker" class="worker__img">
       <div class="worker__info">
-        <p class="worker__name">{{ worker.name }}</p>
+        <p class="worker__name">{{ worker.profile.user.username }}</p>
         <p class="worker__salary">{{ worker.salary }}р/мес.</p>
       </div>
     </a>

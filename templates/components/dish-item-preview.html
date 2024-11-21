@@ -2,26 +2,26 @@
 
 <div class="dish">
     <div class="dish__photo">
-      <img src="{{ dish.img.url }}" alt="">
+      <img src="{{ orderDish.dish.img.url }}" alt="">
     </div>
     <div class="dish__content">
       <div class="dish__name">
-        {{ dish.name }}
+        {{ orderDish.dish.name }}
       </div>
       <div class="dish__text">
-        {{ dish.content }}
+        {{ orderDish.dish.content }}
       </div>
       <div class="dish__footer">
         <div class="dish__value">
           <div class="dish__price">
-            {{ dish.price }} Р
+            {{ orderDish.dish.price }} Р
           </div>
           <div class="dish__size">
-            {{ dish.weight }} Г
+            {{ orderDish.dish.weight }} Г
           </div>
         </div>
-        <div class="dish__quantity" data-id="{{ dish.id }}">
-          <span>{{ dish.quantity }}</span>
+        <div class="dish__quantity" data-id="{{ orderDish.dish.id }}">
+          <span>{{ orderDish.quantity }}</span>
         </div>
       </div>
     </div>

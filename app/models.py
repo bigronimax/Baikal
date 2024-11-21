@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 from django.db.models import Count, Sum, F, Min, Max
 from datetime import date, timedelta, time
 from django.utils import timezone
+from calendar import monthrange
 from django.core.validators import RegexValidator
 
 # Create your models here.
@@ -25,9 +26,11 @@ class ProfileManager(models.Manager):
     pass
 
 class ReservationManager(models.Manager):
-    def get_sum_guests_by_restaurant(self, restaurant):
-        return self.filter(restaurant__name=restaurant).aggregate(total=Sum('guests'), default=0)['total']
 
+    def get_sum_guests_by_restaurant(self, restaurant):
+        return self.filter(restaurant__name=restaurant).aggregate(total=Sum("guests", default=0))['total']
+       
+    
 class OrderManager(models.Manager):
 
     def get_all_by_restaurant(self, restaurant):
@@ -37,10 +40,17 @@ class OrderManager(models.Manager):
         return self.filter(restaurant__name=restaurant).order_by('-date')[:15]
     
     def get_all_by_user(self, user):
-        return self.filter(profile__profile = user).order_by('-date')
+        return self.filter(profile__user = user).order_by('-date')
     
     def get_sum_cost_by_id(self, order_id):
-        return self.get(id=order_id).dishes.all().aggregate(total=Sum(F('price') * F('quantity')))['total']
+        return self.filter(id=order_id).aggregate(total=Sum(F('dishes__dish__price') * F('dishes__quantity')))['total']
+    
+    def get_sum_cost_by_restaurant_date(self, restaurant, date):
+        return self.filter(restaurant__name=restaurant).filter(date=date).aggregate(total=Sum(F('dishes__dish__price') * F('dishes__quantity'), default=0))['total']
+    
+    def get_sum_guests_by_restaurant_date(self, restaurant, date):
+        return self.filter(restaurant__name=restaurant).filter(date=date).aggregate(total=Sum("guests", default=0))['total']
+    
 
 class DishManager(models.Manager):
 
@@ -62,6 +72,9 @@ class WorkerManager(models.Manager):
 
     def get_highly_paid_waiters(self):
         return self.order_by('salary')
+    
+    def get_sum_cost_by_restaurant(self, restaurant):
+        return self.filter(profession__restaurant__name=restaurant).aggregate(total=Sum("salary", default=0))['total']
 
 class SupplyManager(models.Manager):
 
@@ -70,6 +83,20 @@ class SupplyManager(models.Manager):
     
     def get_sum_cost_by_restaurant(self, restaurant):
         return self.filter(restaurant__name=restaurant).aggregate(total=Sum(F('price') * F('weight'), default=0))['total']
+    
+class RevenueManager(models.Manager):
+
+    def get_by_current_month(self):
+        return self.filter(date__range=(
+            date(date.today().year, date.today().month, 1), 
+            date(date.today().year, date.today().month, monthrange(date.today().year, date.today().month)[1])
+        ))
+    
+    def get_sum_profit_by_current_month(self):
+        return self.filter(date__range=(
+            date(date.today().year, date.today().month, 1), 
+            date(date.today().year, date.today().month, monthrange(date.today().year, date.today().month)[1])
+        )).aggregate(total=Sum("profit", default=0))['total']
 
 class Review(models.Model):
     
@@ -110,17 +137,17 @@ class Reservation(models.Model):
     date = models.DateField(blank=False, default=timezone.now().date())
     time = models.TimeField(choices=HOUR_CHOICES, blank=False, default="")
     comment = models.TextField(max_length=100, null=True, blank=True)
-    #restaurant = models.ForeignKey('Restaurant', blank=True,  null=True, on_delete=models.PROTECT)
+    restaurant = models.ForeignKey('Restaurant', blank=True,  null=True, on_delete=models.PROTECT)
 
     objects = ReservationManager()
 
 
 class Profile(models.Model):
-    profile = models.OneToOneField(User, null=True, on_delete=models.PROTECT, default="")
+    user = models.OneToOneField(User, null=True, on_delete=models.PROTECT, default="")
     avatar = models.ImageField(null=True, blank=True, default="avatar.png", upload_to="avatar/%Y/%M/%D")
 
     def __str__(self):
-        return f'Profile: {self.profile}'
+        return f'Profile: {self.user}'
     
     objects = ProfileManager()
     
@@ -141,7 +168,7 @@ class Order(models.Model):
     table = models.IntegerField(blank=False, null=True, default=1)
     guests = models.IntegerField(blank=False, null=True, default=1)
     date = models.DateTimeField(blank=False, null=True)
-    dishes = models.ManyToManyField('Dish', blank=True)
+    dishes = models.ManyToManyField('OrderDish', blank=True)
     restaurant = models.ForeignKey('Restaurant', blank=True, on_delete=models.PROTECT)
     objects = OrderManager()
 
@@ -161,7 +188,7 @@ class Section(models.Model):
     SECTION_CHOICES = (
         ('Комбо', 'Комбо'),
         ('Закуски', 'Закуски'),
-        ('Супы', 'Супы'),
+        ('Горячее', 'Горячее'),
     )
     menu = models.ForeignKey(
         Menu,
@@ -180,16 +207,21 @@ class Dish(models.Model):
         Section,
         on_delete=models.CASCADE,
         related_name='dishes',
+        default=""
     )
     price = models.IntegerField()
     weight = models.IntegerField()
-    quantity = models.IntegerField(default=1)
     img = models.ImageField(null=True, blank=True, default="dish.webp", upload_to="dish_image/%Y/%M/%D")
 
     objects = DishManager()
 
+
+class OrderDish(models.Model):
+    dish = models.ForeignKey(Dish, blank=True, on_delete=models.CASCADE)
+    quantity = models.IntegerField(default=1)
+
     def __str__(self):
-        return f'{self.name} x{self.quantity}'
+        return f'{self.dish.name} x{self.quantity}'
 
 class Profession(models.Model):
     PROFESSION_CHOICES = (
@@ -209,8 +241,6 @@ class Profession(models.Model):
         return f'{self.name}, {self.restaurant.name}'
 
 class Worker(models.Model):
-
-    name = models.CharField(blank=False, max_length=32)
     profession = models.ForeignKey(
         Profession,
         on_delete=models.CASCADE,
@@ -218,21 +248,31 @@ class Worker(models.Model):
         default=""
     )
     salary = models.IntegerField()
-    avatar = models.ImageField(null=True, blank=True, default="worker.jpeg", upload_to="avatar/%Y/%M/%D")
+    profile = models.ForeignKey('Profile', on_delete=models.PROTECT, blank=True, null=True, default="")
 
     objects = WorkerManager()
 
     def __str__(self):
-        return f'Worker: {self.name}'
+        return f'Worker: {self.profile.user.username}'
 
 class Supply(models.Model):
     name = models.CharField(blank=False, max_length=32)
     provider = models.CharField(blank=False, max_length=32)
-    restaurant = models.ForeignKey('Restaurant', blank=True,  null=True, on_delete=models.PROTECT)
+    restaurant = models.ForeignKey('Restaurant', blank=False, on_delete=models.PROTECT, default="")
     price = models.IntegerField()
     weight = models.IntegerField()
 
     objects = SupplyManager()
+
+class Revenue(models.Model):
+    date = models.DateField(blank=True, null=False)
+    guests = models.IntegerField(null=True)
+    income = models.IntegerField(null=True)
+    consumption = models.IntegerField(null=True)
+    profit = models.IntegerField(null=True)
+
+    objects = RevenueManager()
+
 
     
 

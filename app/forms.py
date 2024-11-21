@@ -4,6 +4,8 @@ from django.forms import ImageField, ValidationError
 from django.core.validators import validate_email
 from app.models import Review, Profile, Reservation, Worker, Supply, Dish, Restaurant
 from django.utils import timezone
+from datetime import datetime
+from django.utils.timezone import make_aware
 
 
 class LoginForm(forms.Form):
@@ -48,7 +50,7 @@ class RegisterForm(forms.ModelForm):
     def save(self):
         self.cleaned_data.pop('password_check')
         user = User.objects.create_user(**self.cleaned_data)
-        Profile.objects.create(profile=user)
+        Profile.objects.create(user=user)
         return user
     
 class ProfileForm(forms.ModelForm):
@@ -93,26 +95,104 @@ class ProfileForm(forms.ModelForm):
 
         return user
 
-class WorkerForm(forms.ModelForm):
-    
+class WorkerAddForm(forms.ModelForm):
+
+    username = forms.CharField(label='Username')
+    email = forms.CharField(widget=forms.EmailInput)
+    password = forms.CharField(widget=forms.PasswordInput)
+    password_check = forms.CharField(widget=forms.PasswordInput)
+    avatar = forms.ImageField(required=False)
+
     class Meta:
         model = Worker
-        fields = "__all__"
+        fields = ["salary", "profession"]
         widgets = {
             'salary': forms.TextInput(attrs={'type': 'text'}),
             'avatar': forms.FileInput(attrs={'type': 'file'}),
         }
+
+    def clean_username(self):
+        username = self.cleaned_data.get('username')
+        if User.objects.filter(username=username).all().count():
+            raise ValidationError('Username is already exists!')
+        return username
+    
+    def clean_email(self):
+        email = self.cleaned_data.get('email')
+        validate_email(email)
+        if User.objects.filter(email=email).all().count():
+            raise ValidationError('Email is already exists!')
+        return email
+
+    def clean(self):
+        password = self.cleaned_data.get('password')
+        password_check = self.cleaned_data.get('password_check')
+
+        if password != password_check:
+            raise ValidationError('Passwords mismatch!')
+        
+    def save(self):
+        username = self.cleaned_data.get('username')
+        email = self.cleaned_data.get('email')
+        password = self.cleaned_data.get('password')
+        salary = self.cleaned_data.get('salary')
+        profession = self.cleaned_data.get('profession')
+        avatar = self.cleaned_data.get('avatar')
+
+        user = User.objects.create_user(
+            username=username,
+            password=password,
+            email=email
+        )
+        
+        Profile.objects.create(user=user)
+        profile = Profile.objects.get(user=user)
+        profile.avatar = avatar
+        profile.save()
+        Worker.objects.create(
+            profile=profile,
+            salary=salary,
+            profession=profession
+        )
+        return user
+
+
+
+class WorkerEditForm(forms.ModelForm):
+
+    username = forms.CharField(label='Username')
+    avatar = forms.ImageField(required=False)
+    
+    class Meta:
+        model = Worker
+        fields = ["salary", "profession"]
+        widgets = {
+            'salary': forms.TextInput(attrs={'type': 'text'}),
+            'avatar': forms.FileInput(attrs={'type': 'file'}),
+        }
+
+    def clean_username(self, **kwargs):
+        worker = super().save(**kwargs)
+        user = worker.profile.user
+        new_username = self.cleaned_data.get('username')
+        if User.objects.filter(username=new_username).all().count() and new_username != user.username:
+            raise ValidationError('Username is already exists!')
+        return new_username
     
     def save(self, **kwargs):
         worker = super().save(**kwargs)
 
         received_avatar = self.cleaned_data.get('avatar')
-        new_name = self.cleaned_data.get('name')
+        new_username = self.cleaned_data.get('username')
         new_salary = self.cleaned_data.get('salary')
         new_profession = self.cleaned_data.get('profession')
 
-        if new_name != worker.name:
-            worker.name = new_name
+        profile = worker.profile
+        user = worker.profile.user
+
+        if new_username != user.username:
+            user.username = new_username
+            user.save()
             worker.save()
         if new_salary != worker.salary:
             worker.salary = new_salary
@@ -121,10 +201,10 @@ class WorkerForm(forms.ModelForm):
             worker.profession = new_profession
             worker.save()
         if received_avatar:
-            worker.avatar = received_avatar
+            profile.avatar = received_avatar
+            profile.save()
             worker.save()
         
-
         return worker
 
 class SupplyForm(forms.ModelForm):
@@ -227,6 +307,9 @@ class ReservationForm(forms.ModelForm):
     def save(self, **kwargs):
         reservation = super().save(**kwargs)
 
+        reservation.restaurant = Restaurant.objects.get_by_name("Hunter")[0]
+        reservation.save()
+
         new_name = self.cleaned_data['name']
         new_phone = self.cleaned_data['phone']
         new_guests = self.cleaned_data['guests']
@@ -253,7 +336,7 @@ class ReservationForm(forms.ModelForm):
         if new_comment != reservation.comment: 
             reservation.comment = new_comment
             reservation.save()
-            
+
         return reservation
 
     
@@ -268,13 +351,15 @@ class ReviewForm(forms.ModelForm):
         fields = ['title', 'content', 'verdict']
 
     def save(self, restaurant):
-        profile = Profile.objects.get(profile=self.user)
+        naive_datetime = datetime.now()
+        aware_datetime = make_aware(naive_datetime)
+        profile = Profile.objects.get(user=self.user)
         review = Review(
             profile = profile, 
             title = self.cleaned_data['title'], 
             content = self.cleaned_data['content'], 
             restaurant = Restaurant.objects.get(name=restaurant),
-            date = timezone.now().date(),
+            date = aware_datetime,
             verdict = self.cleaned_data['verdict'],
         )
         review.save()

@@ -37,26 +37,3 @@ for (let i = 0; i < dish_buttons.length; i++) {
             });
     })
 }
-
-
-// function addDish(dish_id) {
-//     $(document).on('click', '#add-cart-' + dish_id, function(e){
-//         e.preventDefault();
-//         $.ajax({
-//             type: 'POST',
-//             url: "{% url 'cartAdd' %}",
-//             data: {
-//                 dish_id: dish_id,
-//                 action: 'post'
-//             },
-    
-//             success: function(json) {
-//                 console.log(json)
-//             },
-    
-//             error: function(xhr, errmsg, err) {
-    
-//             },
-//         });
-//     })
-// }

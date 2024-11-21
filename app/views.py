@@ -9,6 +9,21 @@ from django.forms import model_to_dict
 from .models import Reservation
 from django.shortcuts import Http404
 from django.core.paginator import Paginator
+from calendar import Calendar, monthrange
+import datetime
+
+c = Calendar()
+
+def calculate_profit():
+    month_size = monthrange(datetime.date.today().year, datetime.date.today().month)[1]
+    for d in [x for x in c.itermonthdates(datetime.date.today().year, datetime.date.today().month) if x.month == datetime.date.today().month]:
+        revenue = models.Revenue.objects.get(date=d)
+        revenue.guests = models.Order.objects.get_sum_guests_by_restaurant_date("Hunter", d)
+        revenue.income = models.Order.objects.get_sum_cost_by_restaurant_date("Hunter", d)
+        revenue.consumption = models.Supply.objects.get_sum_cost_by_restaurant("Hunter") + (models.Worker.objects.get_sum_cost_by_restaurant("Hunter") // month_size)
+        revenue.profit = revenue.income - revenue.consumption
+        revenue.save()
+    return models.Revenue.objects.get_by_current_month()
 
 def paginate(request, objects, per_page=3):
     paginator = Paginator(objects, per_page)
@@ -131,8 +146,8 @@ def hunterAdminOrders(request):
 
 def hunterAdminReservations(request):
     reservations = Reservation.objects.all()
-    #sum_guests = models.Reservation.objects.get_sum_guests_by_restaurant("Hunter")
-    return render(request, "hunter__admin-reservations.html", {"reservations": reservations})
+    sum_guests = models.Reservation.objects.get_sum_guests_by_restaurant("Hunter")
+    return render(request, "hunter__admin-reservations.html", {"reservations": reservations, "sum_guests": sum_guests})
 
 def hunterAdminReservationsEdit(request, reservation_id):
     try:
@@ -187,10 +202,12 @@ def hunterAdminStaffEdit(request, worker_id):
     except models.Worker.DoesNotExist:
         raise Http404('Worker does not exist')
 
+    dict = model_to_dict(models.Worker.objects.get(id=worker_id))
+    dict["username"] = models.Profile.objects.get(id=dict["profile"]).user.username
     if request.method == 'GET':
-        edit_form = app.forms.WorkerForm(initial=model_to_dict(models.Worker.objects.get(id=worker_id)))
+        edit_form = app.forms.WorkerEditForm(initial=dict)
     if request.method == 'POST':
-        edit_form = app.forms.WorkerForm(request.POST, request.FILES, instance=models.Worker.objects.get(id=worker_id), initial=model_to_dict(models.Worker.objects.get(id=worker_id)))
+        edit_form = app.forms.WorkerEditForm(request.POST, request.FILES, instance=models.Worker.objects.get(id=worker_id), initial=dict)
         if edit_form.is_valid():
             edit_form.save()
             return redirect(reverse('hunterAdminStaff'))
@@ -199,9 +216,9 @@ def hunterAdminStaffEdit(request, worker_id):
 
 def hunterAdminStaffAdd(request):
     if request.method == 'GET':
-        add_form = app.forms.WorkerForm()
+        add_form = app.forms.WorkerAddForm()
     if request.method == 'POST':
-        add_form = app.forms.WorkerForm(request.POST, request.FILES)
+        add_form = app.forms.WorkerAddForm(request.POST, request.FILES)
         if add_form.is_valid():
             worker = add_form.save()
             if worker:
@@ -215,7 +232,12 @@ def hunterAdminStaffDelete(request, worker_id):
         worker = models.Worker.objects.get(id=worker_id)
     except models.Worker.DoesNotExist:
         raise Http404('Worker does not exist')
+    profile = worker.profile
+    user = worker.profile.user
     worker.delete()
+    profile.delete()
+    user.delete()
+    
     return redirect(reverse('hunterAdminStaff'))
 
 def hunterAdminSupplies(request):
@@ -253,17 +275,17 @@ def hunterAdminSuppliesAdd(request):
     return render(request, 'hunter__admin-suppliesAdd.html', {'form': add_form})
 
 def hunterAdminSuppliesDelete(request, supply_id):
-    print("AAA")
     try:
         supply = models.Supply.objects.get(id=supply_id)
     except models.Supply.DoesNotExist:
         raise Http404('Supply does not exist')
-    print("BBB")
     supply.delete()
     return redirect(reverse('hunterAdminSupplies'))
 
 def hunterAdminProfit(request):
-    return render(request, "hunter__admin-profit.html")
+    revenues = calculate_profit()
+    sum_profit = models.Revenue.objects.get_sum_profit_by_current_month()
+    return render(request, "hunter__admin-profit.html", {'revenues': revenues, "sum_profit": sum_profit})
 
 def logout(request):
     auth.logout(request)

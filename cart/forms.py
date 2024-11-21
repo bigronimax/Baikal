@@ -1,6 +1,8 @@
 from django import forms
 from app.models import Order, Restaurant
 from django.utils import timezone
+from datetime import datetime
+from django.utils.timezone import make_aware
 
 class OrderForm(forms.ModelForm):
     
@@ -14,6 +16,8 @@ class OrderForm(forms.ModelForm):
     
     def save(self, dishes, restaurant_name, **kwargs):
         user = super().save(**kwargs)
+        naive_datetime = datetime.now()
+        aware_datetime = make_aware(naive_datetime)
 
         profile = user.profile
         table = self.cleaned_data.get('table')
@@ -22,7 +26,7 @@ class OrderForm(forms.ModelForm):
             profile=profile,
             table = table,
             guests = guests, 
-            date = timezone.now().date(),
+            date = aware_datetime,
             restaurant = Restaurant.objects.get_by_name(restaurant_name)[0]
         )
         order.dishes.set(dishes)

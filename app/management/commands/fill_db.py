@@ -1,8 +1,11 @@
 from django.core.management import BaseCommand
 from random import randint
 from faker import Faker
-from datetime import datetime
-from app.models import Review, Restaurant, Worker, Order, Dish, Profile, User, Section, Menu, Profession, Supply
+from datetime import datetime, date
+from app.models import Review, Restaurant, Worker, Order, Dish, Profile, User, Section, Menu, Profession, Supply, OrderDish, Revenue
+from calendar import Calendar, monthrange
+
+c = Calendar()
 fake = Faker()
 
 
@@ -18,11 +21,12 @@ class Command(BaseCommand):
         restaurants_size = 2
         reviews_size = num * 10
         profiles_size = num
-        orders_size = num * 5
-        workers_size = num * 5
+        orders_size = num * 100
+        workers_size = num 
         dishes_size = num * 5
         supplies_size = num 
 
+        dates = [x for x in c.itermonthdates(date.today().year, date.today().month) if x.month == date.today().month]
 
         restaurants = [
             Restaurant(
@@ -126,10 +130,22 @@ class Command(BaseCommand):
         dishes = Dish.objects
         dishes_count = dishes.count()
 
+        orderDishes = []
+
+        for i in range(dishes_size):
+            od = OrderDish(
+                dish = dishes.get(pk=randint(1, dishes_count)),
+                quantity = randint(1, 7)
+            ) 
+            od.save()
+            orderDishes.append(od)
+        orderDishes = OrderDish.objects
+        orderDishes_count = orderDishes.count()  
+
 
         profiles = [
             Profile(
-                profile = User.objects.create_user(username=f'{fake.name()}_{i}')
+                user = User.objects.create_user(username=f'{fake.name()}_{i}')
             ) for i in range(profiles_size)
         ]
 
@@ -144,7 +160,7 @@ class Command(BaseCommand):
                 title = fake.sentence(nb_words=3),
                 content = fake.text(),
                 profile = profiles.get(pk=randint(1, profiles_count)),
-                date = str(fake.date_time_between(datetime(2022,1,1, 0, 0, 0, 0), datetime(2023,12,31, 0, 0, 0, 0))),
+                date = dates[randint(0, monthrange(date.today().year, date.today().month)[1] - 1)],
                 verdict = Review.RATING_CHOICES[randint(0, len(Review.RATING_CHOICES)-1)][1],
                 restaurant = restaurants.get(pk=randint(1, restaurants_count))
             ) 
@@ -171,16 +187,17 @@ class Command(BaseCommand):
         supplies_count = supplies.count()
      
         orders = []
-
+        
         for i in range(orders_size):
             o = Order(
                 guests = randint(1, 7),
-                date = str(fake.date_time_between(datetime(2022,1,1, 0, 0, 0, 0), datetime(2023,12,31, 0, 0, 0, 0))),
+                date = dates[randint(0, monthrange(date.today().year, date.today().month)[1] - 1)],
                 restaurant = restaurants.get(pk=randint(1, restaurants_count))
             ) 
             o.save()
             for i in range(randint(1, 5)):
-                o.dishes.add(dishes.get(pk=randint(1, dishes_count)))
+                o.dishes.add(orderDishes.get(pk=randint(1, 7)))
+
             orders.append(o)
         
         orders = Order.objects
@@ -189,8 +206,12 @@ class Command(BaseCommand):
         workers = []
 
         for i in range(workers_size):
+            p =  Profile(
+                user = User.objects.create_user(username=f'{fake.name()}_{i}')
+            )
+            p.save()
             w = Worker(
-                name = fake.sentence(nb_words=1),
+                profile = p,
                 profession = professions.get(pk=randint(1, professions_count)),
                 salary = randint(50000, 100000),
             )
@@ -198,4 +219,16 @@ class Command(BaseCommand):
             workers.append(w)
         workers = Worker.objects
         workers_count = workers.count()
+
+        revenues = []
+
+        for d in dates:
+            r = Revenue(
+                date = d
+            )
+            revenues.append(r)
+
+        Revenue.objects.bulk_create(revenues)
+        revenues = Revenue.objects
+        revenues_count = revenues.count()
         
