@@ -1,0 +1,27 @@
+{% extends 'layouts/restaurant__base.html' %}
+
+{% block content %}
+<section class="reviews">
+  <div class="reviews__top">
+    <a href="{% url 'restaurantReviewsAdd' restaurant_name=restaurant.name %}" class="reviews__top-href">
+      Написать отзыв
+    </a>
+  </div>
+  <div class="reviews__body">
+    {% for review in reviews %}
+
+    {% include 'components/review-item.html' %}
+
+    {% endfor %}
+
+    {% if num_pages > 1 %}
+
+    {% include 'components/paginator.html' %}
+
+    {% endif %}
+  </div>
+</section>
+{% endblock %}
+
+
+

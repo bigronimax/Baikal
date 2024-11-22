@@ -1,0 +1,64 @@
+{% extends 'layouts/restaurant__admin-base.html' %}
+
+{% block content %}
+<div class="fragment">
+  <div class="worker__item">
+    
+    <h2 class="edit__title">
+        Редактирование: <span>{{ worker.name }}</span>
+    </h2>
+    <div class="forms__container">
+      <form class="edit__form" method="post" enctype="multipart/form-data" novalidate>
+        {% csrf_token %}
+        {% for field in form %}
+        {% if field.html_name == "avatar" %}
+        <div class="edit__input">
+          <label class="edit__input-title" for="">{{field.label_tag}}</label>
+          <label class="edit__img"> 
+            {{field}}   
+            <span class="edit__img-btn">Выберите файл</span>
+          </label>
+        </div>
+        {% elif field.html_name == "restaurant" %}
+          {% if request.user.is_superuser %}
+          <div class="edit__input">
+              <label class="edit__input-title" for="">{{field.label_tag}}</label>
+              {{field}}
+              {% if field.errors%}
+              {% for error in field.errors %}
+              <div class="alert alert-danger">
+                  {{error}}
+              </div>
+              {% endfor %}
+              {% endif %}
+          </div>
+          {% endif %}
+        {% else %}
+        <div class="edit__input">
+            <label class="edit__input-title" for="">{{field.label_tag}}</label>
+            {{field}}
+            {% if field.errors%}
+            {% for error in field.errors %}
+            <div class="alert alert-danger">
+                {{error}}
+            </div>
+            {% endfor %}
+            {% endif %}
+        </div>
+        {% endif %}
+        {% endfor %}
+        
+        <img class="edit__image" src="{{ worker.profile.avatar.url }}" alt="avatar">
+  
+        <button class="edit__btn">Сохранить</button>
+      </form>
+      <form action="{% url 'restaurantAdminStaffDelete' restaurant_name=restaurant.name worker_id=worker.id %}" method="post">
+        {% csrf_token %}
+        <button class="edit__btn delete__btn">Удалить</button>
+      </form>
+    </div>
+    
+
+  </div>
+</div>
+{% endblock %}

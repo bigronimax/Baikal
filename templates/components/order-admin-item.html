@@ -1,4 +1,4 @@
-<a href="{% url 'hunterAdminOrderItem' order_id=order.id %}" class="order-href">
+<a href="{% url 'restaurantAdminOrderItem' restaurant_name=restaurant.name order_id=order.id %}" class="order-href">
   <div class="order">
     <div class="order__left">
       <div class="order__num">Заказ<span>№{{ order.id }}</span></div>

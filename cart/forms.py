@@ -14,7 +14,7 @@ class OrderForm(forms.ModelForm):
             'guests': forms.TextInput(attrs={'type': 'text'}),
         }
     
-    def save(self, dishes, restaurant_name, **kwargs):
+    def save(self, restaurant_name, **kwargs):
         user = super().save(**kwargs)
         naive_datetime = datetime.now()
         aware_datetime = make_aware(naive_datetime)
@@ -29,7 +29,5 @@ class OrderForm(forms.ModelForm):
             date = aware_datetime,
             restaurant = Restaurant.objects.get_by_name(restaurant_name)[0]
         )
-        order.dishes.set(dishes)
-        order.save()
         
         return order

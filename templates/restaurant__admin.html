@@ -1,0 +1,13 @@
+{% extends 'layouts/restaurant__admin-baseNoLinks.html' %}
+
+{% block content %}
+<section class="restaurants">
+
+  {% for restaurant in restaurants %}
+
+  {% include 'components/restaurant-admin-item.html' %}
+
+  {% endfor %}
+
+</section>
+{% endblock %}

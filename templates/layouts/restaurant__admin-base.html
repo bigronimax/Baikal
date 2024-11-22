@@ -1,0 +1,132 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Hunter</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+  <link rel="stylesheet" href="{% static 'css/reset.css' %}"/>
+  <link rel="stylesheet" href="{% static 'css/restaurant.css' %}"/>
+</head>
+<body> 
+  <header class="header">
+    <a href="{% url 'restaurantIndex' restaurant_name=restaurant.name %}" class="logo">
+      {{ restaurant.name }}
+    </a>
+
+    <h2 class="nav__title">Добро пожаловать, {{ user.username }}!</h2>
+
+    <div class="icons">
+      {% if user.is_authenticated and not request.user.is_superuser %}
+      <img class="profile__icon" src="{{ request.user.profile.avatar.url }}" class="fas fa-user profile" id="prof-btn" onclick="toggleMenu()"></img>
+      {% else %}
+      <img class="profile__icon" src="{% static '/img/avatar.png' %}" class="fas fa-user profile" id="prof-btn" onclick="toggleMenu()"></img>
+      {% endif %}
+    </div>
+
+    <div class="sub-menu-wrap" id="subMenu">
+      <div class="sub-menu">
+        <div class="user-info">
+          {% if user.is_authenticated and not request.user.is_superuser %} 
+          <img src="{{ request.user.profile.avatar.url }}" alt="">
+          <h3>{{ user.username }}</h3>
+          {% elif request.user.is_superuser  %}
+          <img src="{% static '/img/avatar.png' %}" alt="">
+          <h3>{{ user.username }}</h3>
+          {% else %}
+          <img src="{% static '/img/avatar.png' %}" alt="">
+          <h3>Anonymus</h3>
+          {% endif %}
+        </div>
+        <hr>
+        
+        {% if user.is_authenticated %}
+        <a href="{% url 'profile' %}" class="sub-menu-link">
+          <img src="{% static '/img/setting.png' %}" alt="">
+          <p>Edit Profile</p>
+          <span>></span>
+        </a>
+        {% if user.groups.all.0.name == "waiter" or user.groups.all.0.name == "chef" or user.groups.all.0.name == "manager" or request.user.is_superuser %}
+        {% if request.user.is_superuser %}
+        <a href="{% url 'restaurantAdmin' %}" class="sub-menu-link">
+          <img src="{% static '/img/help.png' %}" alt="">
+          <p>Admin</p>
+          <span>></span>
+        </a>
+        {% else %}
+        <a href="{% url 'restaurantAdminOrders' restaurant_name=request.user.profile.worker.profession.restaurant.name %}" class="sub-menu-link">
+          <img src="{% static '/img/help.png' %}" alt="">
+          <p>Admin</p>
+          <span>></span>
+        </a>
+        {% endif %}
+        {% endif %}
+        <a href="{% url 'logout' %}?continue={{ request.get_full_path }}" class="sub-menu-link">
+          <img src="{% static '/img/logout.png' %}" alt="">
+          <p>Log Out</p>
+          <span>></span>
+        </a>
+        {% else %}
+        <a href="{% url 'login' %}?continue={{ request.get_full_path }}" class="sub-menu-link">
+          <img src="{% static '/img/setting.png' %}" alt="">
+          <p>Login</p>
+          <span>></span>
+        </a>
+        <a href="{% url 'register' %}?continue={{ request.get_full_path }}" class="sub-menu-link">
+          <img src="{% static '/img/setting.png' %}" alt="">
+          <p>Register</p>
+          <span>></span>
+        </a>
+        {% endif %}
+
+      </div>
+    </div>
+
+  </header>
+
+  <section class="main">
+    {% block content %}
+   
+    {% endblock %}
+    <div class="main__right">
+      {% with request.resolver_match.url_name as url_name %}
+      <nav class="main__right__nav">
+        {% if request.user.is_superuser %}
+        <a class="{% if url_name == 'restaurantAdminEdit' %}current__page{% endif %}" href="{% url 'restaurantAdminEdit' restaurant_name=restaurant.name %}">Ресторан</a>
+        {% endif %}
+        {% if perms.app.view_worker %}
+        <a class="{% if url_name == 'restaurantAdminStaff' %}current__page{% endif %}" href="{% url 'restaurantAdminStaff' restaurant_name=restaurant.name %}">Персонал</a>
+        {% endif %}
+        {% if perms.app.view_supply %}
+        <a class="{% if url_name == 'restaurantAdminSupplies' %}current__page{% endif %}" href="{% url 'restaurantAdminSupplies' restaurant_name=restaurant.name %}">Поставки</a>
+        {% endif %}
+        {% if perms.app.view_dish %}
+        <a class="{% if url_name == 'restaurantAdminMenu' %}current__page{% endif %}" href="{% url 'restaurantAdminMenu' restaurant_name=restaurant.name %}">Меню</a>
+        {% endif %}
+        {% if perms.app.view_review %}
+        <a class="{% if url_name == 'restaurantAdminReviews' %}current__page{% endif %}" href="{% url 'restaurantAdminReviews' restaurant_name=restaurant.name %}">Отзывы</a>
+        {% endif %}
+        {% if perms.app.view_order %}
+        <a class="{% if url_name == 'restaurantAdminOrders' %}current__page{% endif %}" href="{% url 'restaurantAdminOrders' restaurant_name=restaurant.name %}">Заказы</a>
+        {% endif %}
+        {% if perms.app.view_reservation %}
+        <a class="{% if url_name == 'restaurantAdminReservations' %}current__page{% endif %}" href="{% url 'restaurantAdminReservations' restaurant_name=restaurant.name %}">Бронь</a>
+        {% endif %}
+        {% if perms.app.view_revenue %}
+        <a class="{% if url_name == 'restaurantAdminProfit' %}current__page{% endif %}" href="{% url 'restaurantAdminProfit' restaurant_name=restaurant.name %}">Выручка</a>
+        {% endif %}
+      </nav>   
+      {% endwith %} 
+    </div>
+  </section>
+
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+  <script src="{% static 'js/restaurant.js' %}"></script>
+  <script src="{% static 'js/edit.js' %}"></script>
+</body>
+</html>
+

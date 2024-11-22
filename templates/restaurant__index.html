@@ -1,0 +1,15 @@
+{% extends 'layouts/restaurant__base.html' %}
+
+{% block content %}
+<section class="home">
+  <div class="home__content">
+    <h1>Ресторан настоящей Сибирской кухни в Иркутске</h1>
+    <p>Самобытная кухня с сибирским охотничьим колоритом в сочетании с традиционными русскими блюдами и один из лучших стейк-хаусов города Иркутска совершенно точно порадует самых изысканных гурманов</p>
+    <a href="{% url 'restaurantMenu' restaurant_name=restaurant.name %}" class="btn">Открыть меню</a>
+  </div>
+</section>
+{% endblock %}
+    
+  
+
+  

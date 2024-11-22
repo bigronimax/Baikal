@@ -1,7 +1,7 @@
 {% load static %}
 
 <div class="dish dish-admin">
-  <a href="{% url 'hunterAdminMenuEdit' dish_id=dish.id %}" class="dish__card">
+  <a href="{% url 'restaurantAdminMenuEdit' restaurant_name=restaurant.name dish_id=dish.id %}" class="dish__card">
     <div class="dish__photo">
       <img src="{{ dish.img.url }}" alt="">
     </div>

@@ -1,0 +1,38 @@
+{% extends 'layouts/restaurant__admin-base.html' %}
+
+{% block content %}
+<div class="fragment">
+  <div class="reservations">
+    <table>
+        <thead>
+          <tr>
+            <th>ФИО</th>
+            <th>Время</th>
+            <th>Дата</th>
+            <th>Гости</th>
+            <th>Телефон</th>
+            <th>Комментарий</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for res in reservations %}
+          <tr class="clickable-row" data-href="{% url 'restaurantAdminReservationsEdit' restaurant_name=restaurant.name reservation_id=res.id %}">
+            <td>{{ res.name }}</td>
+            <td>{{ res.time }}</td>
+            <td>{{ res.date }}</td>
+            <td>{{ res.guests }}</td>
+            <td>{{ res.phone }}</td>
+            <td>{{ res.comment }}</td>
+          </tr>
+          {% endfor %}
+          <tr>
+            <td colspan="6" class="text-right text-bold">Всего: {{ sum_guests }} гостей</td>
+          </tr>
+        </tbody>
+    </table>
+    <div class="table__edit">
+      <a href="{% url 'restaurantAdminReservationsAdd' restaurant_name=restaurant.name %}"><button class="btn-2">Добавить</button></a>
+    </div>
+  </div>
+</div>
+{% endblock %}

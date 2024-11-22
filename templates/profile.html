@@ -9,13 +9,13 @@
   <title>Hunter</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
   <link rel="stylesheet" href="{% static '/css/reset.css' %}"/>
-  <link rel="stylesheet" href="{% static '/css/hunter.css' %}"/>
+  <link rel="stylesheet" href="{% static '/css/restaurant.css' %}"/>
 </head>
 <body> 
 
   <section class="edit">
     <h2 class="edit__title">
-      Настройки профиля: <span>{{ user.username }}.</span> <span>Баллы: 1000</span>
+      Настройки профиля: <span>{{ user.username }}.</span>
     </h2>
     <form class="edit__form" method="post" enctype="multipart/form-data" novalidate>
       {% csrf_token %}

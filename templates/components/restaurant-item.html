@@ -1,0 +1,12 @@
+{% load static %}
+
+<div class="slider-item">
+    <div class="slider-img">
+      <img src="{{ restaurant.img.url }}" alt="">
+    </div>
+    <div class="slider-text">
+      <h2>{{ restaurant.name }}</h2>
+      <p>{{ restaurant.content }}</p>
+      <a href="{% url 'restaurantIndex' restaurant_name=restaurant.name %}">Перейти на сайт</a>
+    </div>
+</div>

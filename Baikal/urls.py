@@ -6,50 +6,53 @@ from django.conf.urls.static import static
 from django.views.generic import RedirectView
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    path('adminDjango/', admin.site.urls),
     path("main", views.main, name="main"),
-    path("main/hunter", views.hunterIndex, name="hunterIndex"),
-    path("main/hunter/reservation", views.hunterReservation, name="hunterReservation"),
-    path("main/hunter/menu", views.hunterMenu, name="hunterMenu"),
-    path('main/hunter/', include('cart.urls')),
+    path("main/<str:restaurant_name>", views.restaurantIndex, name="restaurantIndex"),
+    path("main/<str:restaurant_name>/reservation", views.restaurantReservation, name="restaurantReservation"),
+    path("main/<str:restaurant_name>/menu", views.restaurantMenu, name="restaurantMenu"),
+    path('main/<str:restaurant_name>/', include('cart.urls')),
 
-    path("main/hunter/reviews", views.hunterReviews, name="hunterReviews"),
-    path("main/hunter/reviews/add", views.hunterReviewsAdd, name="hunterReviewsAdd"),
+    path("main/<str:restaurant_name>/reviews", views.restaurantReviews, name="restaurantReviews"),
+    path("main/<str:restaurant_name>/reviews/add", views.restaurantReviewsAdd, name="restaurantReviewsAdd"),
 
-    path("main/hunter/orders", views.hunterOrders, name="hunterOrders"),
-    path("main/hunter/orders/<int:order_id>", views.hunterOrderItem, name="hunterOrderItem"),
+    path("main/<str:restaurant_name>/orders", views.restaurantOrders, name="restaurantOrders"),
+    path("main/<str:restaurant_name>/orders/<int:order_id>", views.restaurantOrderItem, name="restaurantOrderItem"),
 
-    path("main/profile", views.profile, name="profile"),
-    path("main/login", views.login, name="login"),
+    path("profile", views.profile, name="profile"),
+    path("login", views.login, name="login"),
     path('logout/', views.logout, name='logout'),
-    path("main/register", views.register, name="register"),
+    path("register", views.register, name="register"),
 
-    path("main/hunter/admin/menu", views.hunterAdminMenu, name="hunterAdminMenu"),
-    path("main/hunter/admin/menu/add", views.hunterAdminMenuAdd, name="hunterAdminMenuAdd"),
-    path("main/hunter/admin/menu/delete/<int:dish_id>", views.hunterAdminMenuDelete, name="hunterAdminMenuDelete"),
-    path("main/hunter/admin/menu/<int:dish_id>", views.hunterAdminMenuEdit, name="hunterAdminMenuEdit"),
+    path("main/<str:restaurant_name>/admin/menu", views.restaurantAdminMenu, name="restaurantAdminMenu"),
+    path("main/<str:restaurant_name>/admin/menu/add", views.restaurantAdminMenuAdd, name="restaurantAdminMenuAdd"),
+    path("main/<str:restaurant_name>/admin/menu/delete/<int:dish_id>", views.restaurantAdminMenuDelete, name="restaurantAdminMenuDelete"),
+    path("main/<str:restaurant_name>/admin/menu/<int:dish_id>", views.restaurantAdminMenuEdit, name="restaurantAdminMenuEdit"),
 
-    path("main/hunter/admin/orders", views.hunterAdminOrders, name="hunterAdminOrders"),
-    path("main/hunter/admin/orders/<int:order_id>", views.hunterAdminOrderItem, name="hunterAdminOrderItem"),
+    path("main/<str:restaurant_name>/admin/orders", views.restaurantAdminOrders, name="restaurantAdminOrders"),
+    path("main/<str:restaurant_name>/admin/orders/<int:order_id>", views.restaurantAdminOrderItem, name="restaurantAdminOrderItem"),
 
-    path("main/hunter/admin/reviews", views.hunterAdminReviews, name="hunterAdminReviews"),
+    path("main/<str:restaurant_name>/admin/reviews", views.restaurantAdminReviews, name="restaurantAdminReviews"),
 
-    path("main/hunter/admin/staff", views.hunterAdminStaff, name="hunterAdminStaff"),
-    path("main/hunter/admin/staff/add", views.hunterAdminStaffAdd, name="hunterAdminStaffAdd"),
-    path("main/hunter/admin/staff/delete/<int:worker_id>", views.hunterAdminStaffDelete, name="hunterAdminStaffDelete"),
-    path("main/hunter/admin/staff/<int:worker_id>", views.hunterAdminStaffEdit, name="hunterAdminStaffEdit"),
+    path("main/<str:restaurant_name>/admin/staff", views.restaurantAdminStaff, name="restaurantAdminStaff"),
+    path("main/<str:restaurant_name>/admin/staff/add", views.restaurantAdminStaffAdd, name="restaurantAdminStaffAdd"),
+    path("main/<str:restaurant_name>/admin/staff/delete/<int:worker_id>", views.restaurantAdminStaffDelete, name="restaurantAdminStaffDelete"),
+    path("main/<str:restaurant_name>/admin/staff/<int:worker_id>", views.restaurantAdminStaffEdit, name="restaurantAdminStaffEdit"),
 
-    path("main/hunter/admin/reservations", views.hunterAdminReservations, name="hunterAdminReservations"),
-    path("main/hunter/admin/reservations/add", views.hunterAdminReservationsAdd, name="hunterAdminReservationsAdd"),
-    path("main/hunter/admin/reservations/delete/<int:reservation_id>", views.hunterAdminReservationsDelete, name="hunterAdminReservationsDelete"),
-    path("main/hunter/admin/reservations/<int:reservation_id>", views.hunterAdminReservationsEdit, name="hunterAdminReservationsEdit"),
+    path("main/<str:restaurant_name>/admin/reservations", views.restaurantAdminReservations, name="restaurantAdminReservations"),
+    path("main/<str:restaurant_name>/admin/reservations/add", views.restaurantAdminReservationsAdd, name="restaurantAdminReservationsAdd"),
+    path("main/<str:restaurant_name>/admin/reservations/delete/<int:reservation_id>", views.restaurantAdminReservationsDelete, name="restaurantAdminReservationsDelete"),
+    path("main/<str:restaurant_name>/admin/reservations/<int:reservation_id>", views.restaurantAdminReservationsEdit, name="restaurantAdminReservationsEdit"),
 
-    path("main/hunter/admin/profit", views.hunterAdminProfit, name="hunterAdminProfit"),
+    path("main/<str:restaurant_name>/admin/profit", views.restaurantAdminProfit, name="restaurantAdminProfit"),
 
-    path("main/hunter/admin/supplies", views.hunterAdminSupplies, name="hunterAdminSupplies"),
-    path("main/hunter/admin/supplies/add", views.hunterAdminSuppliesAdd, name="hunterAdminSuppliesAdd"),
-    path("main/hunter/admin/supplies/delete/<int:supply_id>", views.hunterAdminSuppliesDelete, name="hunterAdminSuppliesDelete"),
-    path("main/hunter/admin/supplies/<int:supply_id>", views.hunterAdminSuppliesEdit, name="hunterAdminSuppliesEdit"),
+    path("main/<str:restaurant_name>/admin/supplies", views.restaurantAdminSupplies, name="restaurantAdminSupplies"),
+    path("main/<str:restaurant_name>/admin/supplies/add", views.restaurantAdminSuppliesAdd, name="restaurantAdminSuppliesAdd"),
+    path("main/<str:restaurant_name>/admin/supplies/delete/<int:supply_id>", views.restaurantAdminSuppliesDelete, name="restaurantAdminSuppliesDelete"),
+    path("main/<str:restaurant_name>/admin/supplies/<int:supply_id>", views.restaurantAdminSuppliesEdit, name="restaurantAdminSuppliesEdit"),
+
+    path("admin", views.restaurantAdmin, name="restaurantAdmin"),
+    path("main/<str:restaurant_name>/admin", views.restaurantAdminEdit, name="restaurantAdminEdit"),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

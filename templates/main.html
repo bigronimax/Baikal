@@ -15,19 +15,18 @@
 <body> 
     
   <header class="header">
-    <a href="main.html" class="logo">
+    <a href="{% url 'main' %}" class="logo">
       BAIKAL
     </a>
 
     <nav class="navbar">
       <a class="current_page" href="main.html">Главная</a>
       <a href="#">Новости</a>
-      <a href="#book_table">О нас</a>
-      <a href="#reviews">Отзывы</a>
+      <a href="#">О нас</a>
     </nav>
 
     <div class="icons">
-      {% if user.is_authenticated %}
+      {% if user.is_authenticated and not request.user.is_superuser %}
       <img class="profile__icon" src="{{ request.user.profile.avatar.url }}" class="fas fa-user profile" id="prof-btn" onclick="toggleMenu()"></img>
       {% else %}
       <img class="profile__icon" src="{% static '/img/avatar.png' %}" class="fas fa-user profile" id="prof-btn" onclick="toggleMenu()"></img>
@@ -37,8 +36,11 @@
     <div class="sub-menu-wrap" id="subMenu">
       <div class="sub-menu">
         <div class="user-info">
-          {% if user.is_authenticated %}
+          {% if user.is_authenticated and not request.user.is_superuser %} 
           <img src="{{ request.user.profile.avatar.url }}" alt="">
+          <h3>{{ user.username }}</h3>
+          {% elif request.user.is_superuser  %}
+          <img src="{% static '/img/avatar.png' %}" alt="">
           <h3>{{ user.username }}</h3>
           {% else %}
           <img src="{% static '/img/avatar.png' %}" alt="">
@@ -53,11 +55,21 @@
           <p>Edit Profile</p>
           <span>></span>
         </a>
-        <a href="{% url 'hunterAdminProfit' %}" class="sub-menu-link">
+        {% if user.groups.all.0.name == "waiter" or user.groups.all.0.name == "chef" or user.groups.all.0.name == "manager" or request.user.is_superuser %}
+        {% if request.user.is_superuser %}
+        <a href="{% url 'restaurantAdmin' %}" class="sub-menu-link">
           <img src="{% static '/img/help.png' %}" alt="">
           <p>Admin</p>
           <span>></span>
         </a>
+        {% else %}
+        <a href="{% url 'restaurantAdminOrders' restaurant_name=request.user.profile.worker.profession.restaurant.name %}" class="sub-menu-link">
+          <img src="{% static '/img/help.png' %}" alt="">
+          <p>Admin</p>
+          <span>></span>
+        </a>
+        {% endif %}
+        {% endif %}
         <a href="{% url 'logout' %}?continue={{ request.get_full_path }}" class="sub-menu-link">
           <img src="{% static '/img/logout.png' %}" alt="">
           <p>Log Out</p>
@@ -94,27 +106,11 @@
         </div>
       </div>
 
-      <div class="slider-item">
-        <div class="slider-img">
-          <img src="{% static '/img/slider-2.jpg' %}" alt="">
-        </div>
-        <div class="slider-text">
-          <h2>HUNTER</h2>
-          <p>В Сибирском отеле разместился аутентичный ресторан настоящего охотника. Здесь вы не останетесь без эмоций и наслаждения.</p>
-          <a href="{% url 'hunterIndex' %}">Перейти на сайт</a>
-        </div>
-      </div>
+      {% for restaurant in restaurants %}
 
-      <div class="slider-item">
-        <div class="slider-img">
-          <img src="{% static '/img/slider-3.jpg' %}" alt="">
-        </div>
-        <div class="slider-text">
-          <h2>BUTIN</h2>
-          <p>Здесь каждый может отдохнуть “без галстука”, побыть собой, хорошо и вкусно провести время</p>
-          <a href="#">Перейти на сайт</a>
-        </div>
-      </div>
+      {% include 'components/restaurant-item.html' %}
+
+      {% endfor %}
 
     </div>
   </section>

@@ -1,0 +1,19 @@
+{% extends 'layouts/restaurant__admin-base.html' %}
+
+{% block content %}
+<div class="fragment">
+  <div class="staff">
+    
+    {% for profession in restaurant.professions.all %}
+
+    {% include 'components/staff-group-admin-item.html' %}
+
+    {% endfor %}
+
+    <div class="list__edit">
+      <a href="{% url 'restaurantAdminStaffAdd' restaurant_name=restaurant.name %}"><button class="btn-2">Добавить</button></a>
+    </div>
+    
+  </div>
+</div>
+{% endblock %}

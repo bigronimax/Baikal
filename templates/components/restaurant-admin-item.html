@@ -1,0 +1,26 @@
+{% load static %}
+
+<div class="restaurant">
+  <a href="{% url 'restaurantAdminEdit' restaurant_name=restaurant.name %}" class="restaurant__card">
+    <div class="restaurant__photo">
+      <img src="{{ restaurant.img.url }}" alt="">
+    </div>
+    <div class="restaurant__content">
+      <div class="restaurant__name">
+        {{ restaurant.name }}
+      </div>
+      <div class="restaurant__address">
+        {{ restaurant.address }}
+      </div>
+      <div class="restaurant__footer">
+        <div class="restaurant__value">
+          <div class="restaurant__phone">
+            {{ restaurant.phone }} 
+          </div>
+        </div>
+        
+      </div>
+    </div>
+  </a>
+
+</div>

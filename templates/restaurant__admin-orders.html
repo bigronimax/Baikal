@@ -1,0 +1,23 @@
+{% extends 'layouts/restaurant__admin-base.html' %} 
+
+{% block content %}
+<div class="fragment">
+  <div class="orders">
+    <div class="orders__body">
+      
+      {% for order in orders %}
+
+      {% include 'components/order-admin-item.html' %}
+
+      {% endfor %}
+
+      {% if num_pages > 1 %}
+
+      {% include 'components/paginator.html' %}
+
+      {% endif %}
+      
+    </div>
+  </div>
+</div>
+{% endblock %}

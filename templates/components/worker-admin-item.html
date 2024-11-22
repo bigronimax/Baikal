@@ -1,7 +1,7 @@
 {% load static %}
 
 <div class="worker">
-    <a href="{% url 'hunterAdminStaffEdit' worker_id=worker.id %}" class="worker__card">
+    <a href="{% url 'restaurantAdminStaffEdit' restaurant_name=restaurant.name worker_id=worker.id %}" class="worker__card">
       <img src="{{ worker.profile.avatar.url }}" alt="worker" class="worker__img">
       <div class="worker__info">
         <p class="worker__name">{{ worker.profile.user.username }}</p>

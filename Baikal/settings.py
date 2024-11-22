@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'app',
     'cart',
+    'djutils',
 ]
 
 MIDDLEWARE = [
@@ -69,6 +70,9 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'cart.context_proccesors.cart',
             ],
+            'libraries':{
+                    'template_filters': 'app.template_filters',
+                }
         },
     },
 ]
@@ -115,7 +119,7 @@ TIME_ZONE = 'UTC'
 
 USE_I18N = True
 
-USE_TZ = False
+USE_TZ = True
 
 
 # Static files (CSS, JavaScript, Images)

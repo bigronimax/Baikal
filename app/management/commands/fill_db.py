@@ -4,6 +4,7 @@ from faker import Faker
 from datetime import datetime, date
 from app.models import Review, Restaurant, Worker, Order, Dish, Profile, User, Section, Menu, Profession, Supply, OrderDish, Revenue
 from calendar import Calendar, monthrange
+from django.contrib.auth.models import User, Group, Permission
 
 c = Calendar()
 fake = Faker()
@@ -24,6 +25,7 @@ class Command(BaseCommand):
         orders_size = num * 100
         workers_size = num 
         dishes_size = num * 5
+        order_dishes_size = num * 1000
         supplies_size = num 
 
         dates = [x for x in c.itermonthdates(date.today().year, date.today().month) if x.month == date.today().month]
@@ -31,13 +33,15 @@ class Command(BaseCommand):
         restaurants = [
             Restaurant(
                 name = "Hunter",
-                address = "aa:bb:cc",
-                phone = fake.phone_number(),
+                address = "Проспект чего-то там, дом 50",
+                phone = +79999999999,
+                content = "В Сибирском отеле разместился аутентичный ресторан настоящего охотника. Здесь вы не останетесь без эмоций и наслаждения."
             ),
             Restaurant(
                 name = "Butin",
-                address = "aa:bb:cc",
-                phone = fake.phone_number(),
+                address = "Проспект чего-то там, дом 80",
+                phone = +78888888888,
+                content = "Здесь каждый может отдохнуть “без галстука”, побыть собой, хорошо и вкусно провести время"
             )
         ]
 
@@ -106,7 +110,7 @@ class Command(BaseCommand):
             sections.append(s1)
             s2 = Section(
                 menu = menu_objects.get_restaurant(i)[0],
-                name = "Супы" 
+                name = "Горячее" 
             )
             s2.save()
             sections.append(s2)
@@ -130,18 +134,53 @@ class Command(BaseCommand):
         dishes = Dish.objects
         dishes_count = dishes.count()
 
+        dishes_hunter = dishes.filter(section__menu__restaurant__name="Hunter")
+        dishes_hunter_count = dishes_hunter.count()
+
+        dishes_butin = dishes.filter(section__menu__restaurant__name="Butin")
+        dishes_butin_count = dishes_hunter.count()
+
+        orders = []
+        
+        for i in range(orders_size):
+            o = Order(
+                guests = randint(1, 7),
+                date = dates[randint(0, monthrange(date.today().year, date.today().month)[1] - 1)],
+                restaurant = restaurants.get(pk=randint(1, restaurants_count))
+            ) 
+            o.save()
+            orders.append(o)
+        
+        orders = Order.objects
+        orders_count = orders.count()
+
+        orders_hunter = orders.filter(restaurant__name="Hunter")
+        orders_hunter_count = orders_hunter.count()
+
+        orders_butin = orders.filter(restaurant__name="Butin")
+        orders_butin_count = orders_hunter.count()
+
         orderDishes = []
 
-        for i in range(dishes_size):
+        for i in range(order_dishes_size//2):
             od = OrderDish(
-                dish = dishes.get(pk=randint(1, dishes_count)),
-                quantity = randint(1, 7)
+                dish = dishes_hunter.order_by('?')[0],
+                quantity = randint(1, 7),
+                order = orders_hunter.order_by('?')[0]
             ) 
             od.save()
             orderDishes.append(od)
+        for i in range(order_dishes_size//2):
+            od = OrderDish(
+                dish = dishes_butin.order_by('?')[0],
+                quantity = randint(1, 7),
+                order = orders_butin.order_by('?')[0],
+            ) 
+            od.save()
+            orderDishes.append(od)
+
         orderDishes = OrderDish.objects
         orderDishes_count = orderDishes.count()  
-
 
         profiles = [
             Profile(
@@ -185,23 +224,6 @@ class Command(BaseCommand):
      
         supplies = Supply.objects
         supplies_count = supplies.count()
-     
-        orders = []
-        
-        for i in range(orders_size):
-            o = Order(
-                guests = randint(1, 7),
-                date = dates[randint(0, monthrange(date.today().year, date.today().month)[1] - 1)],
-                restaurant = restaurants.get(pk=randint(1, restaurants_count))
-            ) 
-            o.save()
-            for i in range(randint(1, 5)):
-                o.dishes.add(orderDishes.get(pk=randint(1, 7)))
-
-            orders.append(o)
-        
-        orders = Order.objects
-        orders_count = orders.count()
 
         workers = []
 
@@ -231,4 +253,101 @@ class Command(BaseCommand):
         Revenue.objects.bulk_create(revenues)
         revenues = Revenue.objects
         revenues_count = revenues.count()
+
+
+
+        view_order_permission = Permission.objects.get(codename='view_order') 
+
+        add_reservation_permission = Permission.objects.get(codename='add_reservation') 
+        change_reservation_permission = Permission.objects.get(codename='change_reservation') 
+        delete_reservation_permission = Permission.objects.get(codename='delete_reservation') 
+        view_reservation_permission = Permission.objects.get(codename='view_reservation') 
+
+        view_review_permission = Permission.objects.get(codename='view_review')
+
+        add_dish_permission = Permission.objects.get(codename='add_dish') 
+        change_dish_permission = Permission.objects.get(codename='change_dish') 
+        delete_dish_permission = Permission.objects.get(codename='delete_dish') 
+        view_dish_permission = Permission.objects.get(codename='view_dish') 
+
+        add_supply_permission = Permission.objects.get(codename='add_supply') 
+        change_supply_permission = Permission.objects.get(codename='change_supply') 
+        delete_supply_permission = Permission.objects.get(codename='delete_supply') 
+        view_supply_permission = Permission.objects.get(codename='view_supply') 
+
+        view_revenue_permission = Permission.objects.get(codename='view_revenue')
+
+        add_worker_permission = Permission.objects.get(codename='add_worker') 
+        change_worker_permission = Permission.objects.get(codename='change_worker') 
+        delete_worker_permission = Permission.objects.get(codename='delete_worker') 
+        view_worker_permission = Permission.objects.get(codename='view_worker') 
+
+        waiter_group = Group.objects.create(
+            name="waiter"
+        )
+
+        waiter_group.permissions.add(
+            view_order_permission,
+            add_reservation_permission,
+            change_reservation_permission,
+            delete_reservation_permission,
+            view_reservation_permission,
+            view_review_permission
+        )
+
+        chef_group = Group.objects.create(
+            name="chef"
+        )
+
+        chef_group.permissions.add(
+            view_order_permission,
+            add_dish_permission,
+            change_dish_permission,
+            delete_dish_permission,
+            view_dish_permission,
+            add_supply_permission,
+            change_supply_permission,
+            delete_supply_permission,
+            view_supply_permission,
+            view_review_permission
+        )
         
+
+        manager_group = Group.objects.create(
+            name="manager"
+        )
+        
+        manager_group.permissions.add(
+            view_order_permission,
+            add_dish_permission,
+            change_dish_permission,
+            delete_dish_permission,
+            view_dish_permission,
+            add_supply_permission,
+            change_supply_permission,
+            delete_supply_permission,
+            view_supply_permission,
+            view_review_permission,
+            view_revenue_permission,
+            add_worker_permission,
+            change_worker_permission,
+            delete_worker_permission,
+            view_worker_permission
+        )
+
+        workers = Worker.objects.all()
+
+        for worker in workers: 
+            if worker.profession.name == "Официанты":
+                worker.profile.user.groups.add(waiter_group)
+                worker.profile.user.save()
+                worker.save()
+            elif worker.profession.name == "Повара":
+                worker.profile.user.groups.add(chef_group)
+                worker.profile.user.save()
+                worker.save()
+            elif worker.profession.name == "Менеджеры":
+                worker.profile.user.groups.add(manager_group)
+                worker.profile.user.save()
+                worker.save()
+            

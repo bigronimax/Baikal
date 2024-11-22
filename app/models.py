@@ -21,11 +21,11 @@ class RestaurantManager(models.Manager):
     def get_by_name(self, _name):
         return self.filter(name = _name)
     
-class ProfileManager(models.Manager):
-
-    pass
 
 class ReservationManager(models.Manager):
+
+    def get_all_by_restaurant(self, restaurant):
+        return self.filter(restaurant__name=restaurant)
 
     def get_sum_guests_by_restaurant(self, restaurant):
         return self.filter(restaurant__name=restaurant).aggregate(total=Sum("guests", default=0))['total']
@@ -39,8 +39,8 @@ class OrderManager(models.Manager):
     def get_new_by_restaurant(self, restaurant):
         return self.filter(restaurant__name=restaurant).order_by('-date')[:15]
     
-    def get_all_by_user(self, user):
-        return self.filter(profile__user = user).order_by('-date')
+    def get_all_by_user_and_restaurant(self, user, restaurant):
+        return self.filter(profile__user = user).filter(restaurant__name=restaurant).order_by('-date')
     
     def get_sum_cost_by_id(self, order_id):
         return self.filter(id=order_id).aggregate(total=Sum(F('dishes__dish__price') * F('dishes__quantity')))['total']
@@ -86,17 +86,27 @@ class SupplyManager(models.Manager):
     
 class RevenueManager(models.Manager):
 
-    def get_by_current_month(self):
-        return self.filter(date__range=(
+    def get_by_current_month_and_restaurant(self, restaurant):
+        return self.filter(restaurant__name=restaurant).filter(date__range=(
             date(date.today().year, date.today().month, 1), 
             date(date.today().year, date.today().month, monthrange(date.today().year, date.today().month)[1])
         ))
     
-    def get_sum_profit_by_current_month(self):
-        return self.filter(date__range=(
+    def get_sum_profit_by_current_month_and_restaurant(self, restaurant):
+        return self.filter(restaurant__name=restaurant).filter(date__range=(
             date(date.today().year, date.today().month, 1), 
             date(date.today().year, date.today().month, monthrange(date.today().year, date.today().month)[1])
         )).aggregate(total=Sum("profit", default=0))['total']
+
+class SectionManager(models.Manager):
+
+    def get_by_name_and_restaurant(self, name, restaurant):
+        return self.filter(menu__restaurant__name=restaurant).filter(name=name)
+
+class ProfessionManager(models.Manager):
+
+    def get_by_name_and_restaurant(self, name, restaurant):
+        return self.filter(restaurant__name=restaurant).filter(name=name)
 
 class Review(models.Model):
     
@@ -137,26 +147,27 @@ class Reservation(models.Model):
     date = models.DateField(blank=False, default=timezone.now().date())
     time = models.TimeField(choices=HOUR_CHOICES, blank=False, default="")
     comment = models.TextField(max_length=100, null=True, blank=True)
-    restaurant = models.ForeignKey('Restaurant', blank=True,  null=True, on_delete=models.PROTECT)
+    restaurant = models.ForeignKey('Restaurant', blank=False,  null=False, on_delete=models.PROTECT, default="")
 
     objects = ReservationManager()
 
 
 class Profile(models.Model):
-    user = models.OneToOneField(User, null=True, on_delete=models.PROTECT, default="")
+    user = models.OneToOneField(User, null=True, on_delete=models.PROTECT, related_name='profile', default="")
     avatar = models.ImageField(null=True, blank=True, default="avatar.png", upload_to="avatar/%Y/%M/%D")
 
     def __str__(self):
         return f'Profile: {self.user}'
     
-    objects = ProfileManager()
     
 
 class Restaurant(models.Model):
     name = models.CharField(blank=False, max_length=32, default="")
+    content = models.TextField(blank=False, max_length=200, default="")
     address = models.CharField(blank=False, max_length=50)
     phone_regex = RegexValidator(regex=r'^\+?[7,8]?[\s,-]?\(?\d{3}\)?[\s,-]?\d{3}[\s,-]?\d{2}[\s,-]?\d{2}$', message="Invalid format")        
-    phone = models.CharField(validators=[phone_regex], max_length=12, null=True)          
+    phone = models.CharField(validators=[phone_regex], max_length=12, null=True)    
+    img = models.ImageField(null=True, blank=True, default="background.jpg", upload_to="restaurant_image/%Y/%M/%D")      
 
     objects = RestaurantManager()
 
@@ -168,7 +179,6 @@ class Order(models.Model):
     table = models.IntegerField(blank=False, null=True, default=1)
     guests = models.IntegerField(blank=False, null=True, default=1)
     date = models.DateTimeField(blank=False, null=True)
-    dishes = models.ManyToManyField('OrderDish', blank=True)
     restaurant = models.ForeignKey('Restaurant', blank=True, on_delete=models.PROTECT)
     objects = OrderManager()
 
@@ -197,6 +207,8 @@ class Section(models.Model):
     )
     name = models.CharField(choices=SECTION_CHOICES, max_length=10, blank=False, default="")
 
+    objects = SectionManager()
+
     def __str__(self):
         return f'{self.name}, {self.menu.restaurant.name}'
 
@@ -218,6 +230,7 @@ class Dish(models.Model):
 
 class OrderDish(models.Model):
     dish = models.ForeignKey(Dish, blank=True, on_delete=models.CASCADE)
+    order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='dishes', null=True)
     quantity = models.IntegerField(default=1)
 
     def __str__(self):
@@ -237,6 +250,8 @@ class Profession(models.Model):
     )
     name = models.CharField(choices=PROFESSION_CHOICES, max_length=10, blank=False, default="")
 
+    objects = ProfessionManager()
+
     def __str__(self):
         return f'{self.name}, {self.restaurant.name}'
 
@@ -248,7 +263,7 @@ class Worker(models.Model):
         default=""
     )
     salary = models.IntegerField()
-    profile = models.ForeignKey('Profile', on_delete=models.PROTECT, blank=True, null=True, default="")
+    profile = models.OneToOneField('Profile', on_delete=models.PROTECT, blank=True, null=True, related_name='worker', default="")
 
     objects = WorkerManager()
 
@@ -270,6 +285,7 @@ class Revenue(models.Model):
     income = models.IntegerField(null=True)
     consumption = models.IntegerField(null=True)
     profit = models.IntegerField(null=True)
+    restaurant = models.ForeignKey('Restaurant', null=True, on_delete=models.PROTECT)
 
     objects = RevenueManager()
 
