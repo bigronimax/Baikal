@@ -46,10 +46,10 @@ class OrderManager(models.Manager):
         return self.filter(id=order_id).aggregate(total=Sum(F('dishes__dish__price') * F('dishes__quantity')))['total']
     
     def get_sum_cost_by_restaurant_date(self, restaurant, date):
-        return self.filter(restaurant__name=restaurant).filter(date=date).aggregate(total=Sum(F('dishes__dish__price') * F('dishes__quantity'), default=0))['total']
+        return self.filter(restaurant__name=restaurant).filter(date__date=date).aggregate(total=Sum(F('dishes__dish__price') * F('dishes__quantity'), default=0))['total']
     
     def get_sum_guests_by_restaurant_date(self, restaurant, date):
-        return self.filter(restaurant__name=restaurant).filter(date=date).aggregate(total=Sum("guests", default=0))['total']
+        return self.filter(restaurant__name=restaurant).filter(date__date=date).aggregate(total=Sum("guests", default=0))['total']
     
 
 class DishManager(models.Manager):
