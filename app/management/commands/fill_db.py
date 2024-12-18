@@ -22,10 +22,10 @@ class Command(BaseCommand):
         restaurants_size = 2
         reviews_size = num * 10
         profiles_size = num
-        orders_size = num * 100
+        orders_size = num * 10
         workers_size = num 
         dishes_size = num * 5
-        order_dishes_size = num * 1000
+        order_dishes_size = num * 100
         supplies_size = num 
 
         dates = [x for x in c.itermonthdates(date.today().year, date.today().month) if x.month == date.today().month]
@@ -100,21 +100,19 @@ class Command(BaseCommand):
                 menu = menu_objects.get_restaurant(i)[0],
                 name = "Комбо" 
             )
-            s.save()
             sections.append(s)
             s1 = Section(
                 menu = menu_objects.get_restaurant(i)[0],
                 name = "Закуски" 
             )
-            s1.save()
             sections.append(s1)
             s2 = Section(
                 menu = menu_objects.get_restaurant(i)[0],
                 name = "Горячее" 
             )
-            s2.save()
             sections.append(s2)
 
+        Section.objects.bulk_create(sections)
         sections = Section.objects
         sections_count = sections.count()
         
@@ -128,9 +126,9 @@ class Command(BaseCommand):
                 weight = randint(250, 500),
                 section = sections.get(pk=randint(1, sections_count)),
             ) 
-            d.save()
             dishes.append(d)
         
+        Dish.objects.bulk_create(dishes)
         dishes = Dish.objects
         dishes_count = dishes.count()
 
@@ -148,9 +146,9 @@ class Command(BaseCommand):
                 date = dates[randint(0, monthrange(date.today().year, date.today().month)[1] - 1)],
                 restaurant = restaurants.get(pk=randint(1, restaurants_count))
             ) 
-            o.save()
             orders.append(o)
         
+        Order.objects.bulk_create(orders)
         orders = Order.objects
         orders_count = orders.count()
 
@@ -168,7 +166,6 @@ class Command(BaseCommand):
                 quantity = randint(1, 7),
                 order = orders_hunter.order_by('?')[0]
             ) 
-            od.save()
             orderDishes.append(od)
         for i in range(order_dishes_size//2):
             od = OrderDish(
@@ -176,9 +173,9 @@ class Command(BaseCommand):
                 quantity = randint(1, 7),
                 order = orders_butin.order_by('?')[0],
             ) 
-            od.save()
             orderDishes.append(od)
 
+        OrderDish.objects.bulk_create(orderDishes)
         orderDishes = OrderDish.objects
         orderDishes_count = orderDishes.count()  
 
@@ -203,9 +200,9 @@ class Command(BaseCommand):
                 verdict = Review.RATING_CHOICES[randint(0, len(Review.RATING_CHOICES)-1)][1],
                 restaurant = restaurants.get(pk=randint(1, restaurants_count))
             ) 
-            r.save()
             reviews.append(r)
      
+        Review.objects.bulk_create(reviews)
         reviews = Review.objects
         reviews_count = reviews.count()
 
@@ -219,9 +216,9 @@ class Command(BaseCommand):
                 price = randint(400, 800),
                 weight = randint(5, 20)
             ) 
-            s.save()
             supplies.append(s)
      
+        Supply.objects.bulk_create(supplies)
         supplies = Supply.objects
         supplies_count = supplies.count()
 
@@ -237,8 +234,9 @@ class Command(BaseCommand):
                 profession = professions.get(pk=randint(1, professions_count)),
                 salary = randint(50000, 100000),
             )
-            w.save()
             workers.append(w)
+
+        Worker.objects.bulk_create(workers)
         workers = Worker.objects
         workers_count = workers.count()
 

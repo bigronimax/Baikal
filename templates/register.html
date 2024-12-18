@@ -32,7 +32,7 @@
         {% endif %}
       </div>
       {% endfor %}
-
+      {{ form.non_field_errors }}
       <div class="login_or_register">
         <a href="{% url 'login' %}">У вас уже есть профиль?</a>
       </div>

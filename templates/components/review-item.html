@@ -1,20 +1,20 @@
 {% load static %}
 
 <div class="review">
-    <div class="review__left">
-      <img class="review__left__img review__avatar" src="{{ review.profile.avatar.url }}" alt="">
-      <div class="review__verdict">
-        {{ review.verdict }}
-      </div>
+  <div class="review__left">
+    <img class="review__left__img review__avatar" src="{{ review.profile.avatar.url }}" alt="">
+    <div class="review__verdict">
+      {{ review.verdict }}
     </div>
-    <div class="review__right">
-      <div class="review__right__body">
-        <h2 class="review__right__title">{{ review.title }}</h2>
-        <span class="review__right__text">{{ review.content }}</span>
-      </div>
-      <div class="review__right__bottom">
-        <span class="review__right__info">Автор: {{ review.profile.user.username }}, </span>
-        <span class="review__right__info">Дата: {{ review.date }}</span>
-      </div>
+  </div>
+  <div class="review__right">
+    <div class="review__right__body">
+      <h2 class="review__right__title">{{ review.title }}</h2>
+      <span class="review__right__text">{{ review.content }}</span>
     </div>
+    <div class="review__right__bottom">
+      <span class="review__right__info">Автор: {{ review.profile.user.username }},</span>
+      <span class="review__right__info">Дата: {{ review.date }}</span>
+    </div>
+  </div>
 </div>

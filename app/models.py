@@ -175,11 +175,11 @@ class Restaurant(models.Model):
         return f'{self.name}'
 
 class Order(models.Model):
-    profile = models.ForeignKey('Profile', on_delete=models.PROTECT, blank=True, null=True, default="")
+    profile = models.ForeignKey('Profile', on_delete=models.PROTECT, blank=False, null=True, default="")
     table = models.IntegerField(blank=False, null=True, default=1)
     guests = models.IntegerField(blank=False, null=True, default=1)
     date = models.DateTimeField(blank=False, null=True)
-    restaurant = models.ForeignKey('Restaurant', blank=True, on_delete=models.PROTECT)
+    restaurant = models.ForeignKey('Restaurant', blank=False, on_delete=models.PROTECT)
     objects = OrderManager()
 
     def __str__(self):
@@ -274,8 +274,8 @@ class Supply(models.Model):
     name = models.CharField(blank=False, max_length=32)
     provider = models.CharField(blank=False, max_length=32)
     restaurant = models.ForeignKey('Restaurant', blank=False, on_delete=models.PROTECT, default="")
-    price = models.IntegerField()
-    weight = models.IntegerField()
+    price = models.IntegerField(blank=False)
+    weight = models.IntegerField(blank=False)
 
     objects = SupplyManager()
 

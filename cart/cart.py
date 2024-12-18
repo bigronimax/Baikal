@@ -29,7 +29,6 @@ class Cart():
     
     def delete(self, dish, restaurant_name):
         dish_id = str(dish.id)
-
         if dish_id in self.cart[restaurant_name]:
             if self.cart[restaurant_name][dish_id] > 1:
                 self.cart[restaurant_name][dish_id] = self.cart[restaurant_name][dish_id] - 1

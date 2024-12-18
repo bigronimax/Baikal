@@ -12,12 +12,11 @@ class LoginForm(forms.Form):
     username = forms.CharField(label="Username")
     password = forms.CharField(min_length=3, label="Password", widget=forms.PasswordInput)
 
-    def clean_username(self):
+    def clean(self):
         username = self.cleaned_data.get('username')
-        if not(User.objects.filter(username=username).all().count()):
-            raise ValidationError("Wrong username!")
-        return username
-    
+        password = self.cleaned_data.get('password')
+        if not(User.objects.filter(username=username).filter(password=password).all().count()):
+            raise ValidationError("Wrong username or password.")
 
 class RegisterForm(forms.ModelForm):
     password = forms.CharField(widget=forms.PasswordInput)
@@ -43,9 +42,8 @@ class RegisterForm(forms.ModelForm):
     def clean(self):
         password = self.cleaned_data.get('password')
         password_check = self.cleaned_data.get('password_check')
-
         if password != password_check:
-            raise ValidationError('Passwords mismatch!')
+            raise ValidationError("The two password fields must match!")
     
     def save(self):
         self.cleaned_data.pop('password_check')
@@ -307,7 +305,6 @@ class SupplyAddForm(forms.ModelForm):
         return supply
 
 class SupplyEditForm(forms.ModelForm):
-    
     class Meta:
         model = Supply
         fields = "__all__"
@@ -315,23 +312,18 @@ class SupplyEditForm(forms.ModelForm):
             'price': forms.TextInput(attrs={'type': 'text'}),
             'weight': forms.TextInput(attrs={'type': 'text'}),
         }
-
     def __init__(self, *args, **kwargs):
         super(SupplyEditForm, self).__init__(*args, **kwargs)
         self.fields['restaurant'].required = False
-    
     def save(self, restaurant_name, request, **kwargs):
         supply = super().save(**kwargs)
-
         new_name = self.cleaned_data.get('name')
         new_provider = self.cleaned_data.get('provider')
         new_restaurant = self.cleaned_data.get('restaurant')
         new_price = self.cleaned_data.get('price')
         new_weight = self.cleaned_data.get('weight')
-
         if (not request.user.is_superuser):
             new_restaurant = restaurant_name
-
         if new_name != supply.name:
             supply.name = new_name
             supply.save()
@@ -347,7 +339,6 @@ class SupplyEditForm(forms.ModelForm):
         if new_weight != supply.weight:
             supply.weight = new_weight
             supply.save()
-
         return supply
     
 class DishAddForm(forms.ModelForm):
